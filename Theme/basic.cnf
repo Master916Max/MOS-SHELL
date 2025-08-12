@@ -1,0 +1,7 @@
+bg_clr: (87, 168, 168);
+tsk_clr: (30, 61, 88);
+win_slc_clr: (0, 0, 168);
+win_non_slc_clr: (100, 100, 100);
+sys_clr: (192, 199, 200);
+sys_txt_clr: (0,0,0);
+msg_txt_clr: (0,0,0);

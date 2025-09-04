@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="basic">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Installer[WIP]/Modules/Files/basic.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -2,6 +2,9 @@
 import gui
 import pygame
 
+from Components.Window import Window
+
+
 def terminal(window,screen: pygame.Surface):
     screen.fill((200,200,200))
     #screen_width, screen_height = screen.get_size()
@@ -16,14 +19,12 @@ def terminal(window,screen: pygame.Surface):
 
 
 def load_gui():
-    gui.init()
-    gui.zlayer.append(gui.Window("Terminal", 500,500, Logo=(0,0,0)))
-    gui.zlayer[0].add_screen_drawer(terminal)
+    screen = gui.init()
+    gui.zlayer.insert(0,Window("Terminal", 500,500, Logo=(0,0,0), screen=screen, zlayer=gui.zlayer))
     gui.zlayer[0].x = 100
     gui.zlayer[0].y = 50
-    gui.zlayer.append(gui.Window("Terminal2", 300,300, None))
-    gui.zlayer[1].add_screen_drawer(terminal)
-    gui.zlayer.append(gui.Window("Window", 250,250, None))
+    gui.zlayer.insert(0, Window("Terminal2", 300,300, None, screen=screen, zlayer=gui.zlayer))
+    gui.zlayer.insert(0, Window("Window", 250,250, None, screen=screen, zlayer=gui.zlayer))
     gui.Create_MSG_Box(f"Welcome to MOS-{gui.version}","You can close this PopUp.","Go to the Settings to personelize your PC.", 0,1,None)
     gui.run()
 

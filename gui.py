@@ -7,12 +7,11 @@ import threading
 import os
 import sys
 
+from Components.Window import Window
 #from Modules import Input,Button
 from Modules import *
 
 pygame.init()
-
-Window  = object
 MSG_Box = object
 #Input Variabeln
 mousbuttondown = False
@@ -80,7 +79,8 @@ selected_window = False
 cd = 100
 sss = False
 zlayer = []
-build_str : str = ""
+#build_str : str = ""
+
 
 #Secure Screen Variabeln
 Secure_Screen : pygame.Surface
@@ -92,6 +92,8 @@ Menu_Text = menuf.render(f"MOS-{version}", True, textcolor)
 
 Menu_Height = Menu_Text.get_height() * 8 + 50
 Menu_Width = Menu_Text.get_width() + 50
+
+build_str = menuf.render(f"Build {build_id}", True, textcolor)
 
 apps = {"Ordner": "Games",
         "App"   : "Emails",
@@ -112,74 +114,8 @@ def init():
     Secure_Screen = pygame.Surface((screen.get_width(),screen.get_height()),pygame.SRCALPHA)
     textbutton  = ButtonField("Test", screen, 250,50, 150,50,fgcolor=textcolor, bgcolor=syscolor)
     textinput = InputField(screen, 50, 50, 150, 50, fgcolor=textcolor, bgcolor=syscolor, txtfont=menuf)
+    return screen
 
-class Window:
-    def __init__(self, titel, width,height, Logo=None):
-        self.titel = titel
-        self.x = screen.get_width()  // 2 - width  // 2
-        self.y = screen.get_height() // 2 - height // 2
-        self.width = width
-        self.height = height
-        self.logo = Logo
-        self.screen = pygame.Surface((self.width- 10,self.height- 45))
-        self.func = None
-        self.drawer = None
-        self.lastframe = pygame.Surface((self.width,self.height), pygame.SRCALPHA)
-    
-    def add_input_handler(self,func):
-        self.handler = func
-    
-    def add_screen_drawer(self, name_func):
-        self.drawer = name_func
-
-    def run(self):
-        while True:
-            self.draw(self.lastframe)
-
-    def start(self):
-        self.process = threading.Thread(target=self.run)
-
-    def draw(self,sreen: pygame.Surface) -> int:
-        pygame.draw.rect(  sreen, (0,0,0), pygame.Rect(self.x-1,self.y-1,self.width+2,self.height+2)) 
-        pygame.draw.rect(  sreen, syscolor, pygame.Rect(self.x,self.y,self.width,self.height))
-        pygame.draw.rect(  sreen, window_select_color, pygame.Rect(self.x + 5,self.y+5 ,self.width- 10,30))
-        pygame.draw.rect(  sreen, (255,255,255), pygame.Rect(self.x + 5,self.y+40 ,self.width- 10,self.height- 45))
-        if self.drawer:
-            self.drawer(0,self.screen) 
-            sreen.blit(self.screen,(self.x + 5,self.y+40))
-        pygame.draw.circle(screen,(255,0,0), (self.x + 15 , self.y+ 17.5),10)
-        pygame.draw.circle(screen,(0,255,0), (self.x + 40 , self.y+ 17.5),10)
-        pygame.draw.circle(screen,(0,0,255), (self.x + 65 , self.y+ 17.5),10)
-        _draw_Text(self.titel, menuf, textcolor, self.x + 100, self.y + 7.5)
-        return 0
-    
-    def in_window(self,x,y):
-        return pygame.Rect(self.x,self.y,self.width,self.height).collidepoint(x,y)
-    
-    def update_x_y(self,rel, mousepos):
-        if pygame.Rect(self.x + rel[0],self.y + rel[1],self.width,70).collidepoint(mousepos):
-            self.x = self.x + rel[0]
-            if self.x < 0:
-                self.x = 0
-            if self.x + self.width > screen.get_width():
-                self.x = screen.get_width() - self.width
-            self.y = self.y + rel[1]
-            if self.y < 0:
-                self.y = 0
-            return True
-        return False
-
-    def handel_input(self, type : str, dat):
-        global data, wdata
-        if type == "m":
-            if pygame.Rect(self.x + 5,self.y+30 ,self.width- 10,self.height- 35).collidepoint(dat[0], dat[1]):
-                if self.func:
-                    self.func(type,dat)
-            elif pygame.Rect(self.x,self.y,self.width,30).collidepoint(dat[0], dat[1]):
-                if _colide_in_cy(self.x + 15 , self.y+ 15, 10, dat[0], dat[1]):
-                    zlayer.remove(self)
-                self.offsetx = (self.x - dat[0])
-                self.offsety = (self.y - dat[1])
 
 class MSG_Box:
     def __init__(self,Titel, ContentL1,ContentL2,Buttons, Type, root = None, Logo = None):
@@ -291,7 +227,11 @@ def run():
                     hit =  _hit_list(("New-Window","Apps","System"), menuf, (((213,189,175),textcolor),((250,237,205),textcolor),((212,163,115),textcolor)),10, screen.get_height() - (Menu_Height + 40) + Menu_Text.get_height() + 10, 5, event.pos)
                     if hit == "New-Window":
                         w = random.randint(200,500)
-                        zlayer.insert(0,Window(f"New Window", w,w, None)) 
+                        # TODO: do not pass in zlayer because the window should not have any idea where its getting handled in terms of layering
+                        # we need something like an event listener in gui that can handle child events like window.close and do the necessary stuff
+                        # like removing the window from zlayer etc
+                        new_window = Window(f"New Window", w,w, None, screen=screen, zlayer=zlayer)
+                        zlayer.insert(0,new_window)
                     elif hit == "Apps":
                         print("Showing Apps")
                     elif hit == "System":

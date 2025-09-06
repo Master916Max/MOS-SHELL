@@ -2,7 +2,8 @@
 import gui
 import pygame
 
-from Components.Window import Window
+from Components.mos_window import MosWindow
+from chore.mos import MOS
 
 
 def terminal(window,screen: pygame.Surface):
@@ -19,13 +20,20 @@ def terminal(window,screen: pygame.Surface):
 
 
 def load_gui():
-    screen = gui.init()
-    gui.zlayer.insert(0,Window("Terminal", 500,500, Logo=(0,0,0), screen=screen, zlayer=gui.zlayer))
+    os = MOS()
+    root = gui.init()
+    win_1 = MosWindow("Terminal", 500,500, Logo=(0,0,0), parent=root, zlayer=gui.zlayer, type_id='TERMINAL')
+    win_2 = MosWindow("Terminal2", 300,300, None, parent=root, zlayer=gui.zlayer, type_id='TERMINAL')
+    win_3 = MosWindow("Window", 250,250, None, parent=root, zlayer=gui.zlayer)
+    os.open_window(win_1)
+    gui.zlayer.insert(0,win_1)
     gui.zlayer[0].x = 100
     gui.zlayer[0].y = 50
-    gui.zlayer.insert(0, Window("Terminal2", 300,300, None, screen=screen, zlayer=gui.zlayer))
-    gui.zlayer.insert(0, Window("Window", 250,250, None, screen=screen, zlayer=gui.zlayer))
-    gui.Create_MSG_Box(f"Welcome to MOS-{gui.version}","You can close this PopUp.","Go to the Settings to personelize your PC.", 0,1,None)
+    gui.zlayer.insert(0, win_2)
+    gui.zlayer.insert(0, win_3)
+    gui.Create_MSG_Box(f"Welcome to MOS-{gui.version}","You can close this PopUp.","Go to the Settings to personelize your PC.", 0,1,root=root)
+    print(os.open_windows)
     gui.run()
 
-load_gui()
+if __name__ == "__main__":
+    load_gui()

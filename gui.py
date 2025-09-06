@@ -1,14 +1,6 @@
-from pydoc import text
-import pygame
-import random
-import json
-from time import strftime, sleep
-import threading
-import os
-import sys
-
-from Components.Window import Window
-#from Modules import Input,Button
+import pygame, random, json
+from time import strftime
+from Components.mos_window import MosWindow
 from Modules import *
 
 pygame.init()
@@ -67,10 +59,9 @@ dt_offset = 20
 test_build = True
 build_id = "0001"
 version = "V-1.0.0"
-textbutton : ButtonField
+text_button : ButtonField
 textinput  : InputField
-screen : pygame.Surface
-lscreen : pygame.Surface
+display : pygame.Surface
 error, errormsg = False , ""
 data = "N\\A"
 wdata = ""
@@ -83,7 +74,7 @@ zlayer = []
 
 
 #Secure Screen Variabeln
-Secure_Screen : pygame.Surface
+secure_screen : pygame.Surface
 Secure_Screen_Handle : any = None
 
 #Menu Variabeln
@@ -99,34 +90,35 @@ apps = {"Ordner": "Games",
         "App"   : "Emails",
         "App"   : "Brave"} 
 
-def _init_d(version: str):
-    global build_id, test_build, build_str, menuf,textcolor
+root : pygame.Surface
+
+def init():
+    # TODO: do only use globals for constants
+    global secure_screen, text_button, textinput,root, menuf,build_id, test_build, build_str
     build_id = version
     test_build = True
     build_str = menuf.render(f"Build {build_id}", True, textcolor)
-    init()
-
-def init():
-    global screen, Secure_Screen, textbutton, lscreen, textinput, menuf
-    lscreen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-    screen = pygame.Surface((lscreen.get_width(), lscreen.get_height()), pygame.SRCALPHA)
+    root = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("MOS-Py-GUI")
-    Secure_Screen = pygame.Surface((screen.get_width(),screen.get_height()),pygame.SRCALPHA)
-    textbutton  = ButtonField("Test", screen, 250,50, 150,50,fgcolor=textcolor, bgcolor=syscolor)
-    textinput = InputField(screen, 50, 50, 150, 50, fgcolor=textcolor, bgcolor=syscolor, txtfont=menuf)
-    return screen
+    secure_screen = pygame.Surface((root.get_width(), root.get_height()), pygame.SRCALPHA)
+    text_button  = ButtonField("Test", root, 250, 50, 150, 50, fgcolor=textcolor, bgcolor=syscolor)
+    textinput = InputField(root, 50, 50, 150, 50, fgcolor=textcolor, bgcolor=syscolor, txtfont=menuf)
+    return root
 
+screen = init()
 
 class MSG_Box:
-    def __init__(self,Titel, ContentL1,ContentL2,Buttons, Type, root = None, Logo = None):
-        self.titel = Titel
+    def __init__(self,title, ContentL1,ContentL2,Buttons, Type, root = None, Logo = None):
+        self.title = title
         self.line1 = ContentL1
         self.line2 = ContentL2
         self.calc_dims()
         self.Buttons = Buttons
         self.Type = Type
-        self.x = screen.get_width()  // 2 - self.width  // 2
-        self.y = screen.get_height() // 2 - self.height // 2
+        if root is None:
+            raise Exception("No Root Surface given")
+        self.x = root.get_width()  // 2 - self.width  // 2
+        self.y = root.get_height() // 2 - self.height // 2
         if root:
             self.screen = root
         else: self.screen = screen
@@ -138,13 +130,13 @@ class MSG_Box:
     def calc_dims(self):
         img = menuf.render(self.line1, True, textcolor)
         line2 = menuf.render(self.line2, True, textcolor)
-        titel = menuf.render(self.titel,True,textcolor)
+        title = menuf.render(self.title,True,textcolor)
         if img.get_width() + 60 > line2.get_width() + 60:
             self.width = img.get_width() + 80
         else:
             self.width = line2.get_width() + 80
-        if titel.get_width() + 90 > self.width:
-            self.width = titel.get_width() + 90
+        if title.get_width() + 90 > self.width:
+            self.width = title.get_width() + 90
         self.height = img.get_height() + 40 + 10 + line2.get_height()
         self.line1_height = img.get_height()
 
@@ -186,7 +178,7 @@ class MSG_Box:
         pygame.draw.circle(screen,(255,0,0), (self.x + 15 , self.y+ 15),10)
         #pygame.draw.circle(screen,(0,255,0), (self.x + 40 , self.y+ 15),10)
        # pygame.draw.circle(screen,(0,0,255), (self.x + 65 , self.y+ 15),10)
-        _draw_Text(self.titel, menuf, textcolor, self.x + 30, self.y + 2.5)
+        _draw_Text(self.title, menuf, textcolor, self.x + 30, self.y + 2.5)
         if self.Type == 1:
             pygame.draw.circle(screen, (0,0,255),    (self.x + 40,self.y +(self.line1_height)//2 + 50), 25)
             pygame.draw.circle(screen, (255,255,255),(self.x + 40,self.y +(self.line1_height)//2 + 50), 22)
@@ -230,7 +222,7 @@ def run():
                         # TODO: do not pass in zlayer because the window should not have any idea where its getting handled in terms of layering
                         # we need something like an event listener in gui that can handle child events like window.close and do the necessary stuff
                         # like removing the window from zlayer etc
-                        new_window = Window(f"New Window", w,w, None, screen=screen, zlayer=zlayer)
+                        new_window = MosWindow(f"New Window", w,w, None, parent=screen, zlayer=zlayer)
                         zlayer.insert(0,new_window)
                     elif hit == "Apps":
                         print("Showing Apps")
@@ -239,7 +231,7 @@ def run():
                     if pygame.Rect(25, screen.get_height()- (Menu_Height - Menu_Text.get_height() * 6), Menu_Width - 50,Menu_Text.get_height()).collidepoint(event.pos[0],event.pos[1]):
                         sss = True
                         cd -= 1
-                elif textbutton.mouse_down(event.pos):
+                elif text_button.mouse_down(event.pos):
                     continue     
                 else:
                     menu_opend = False
@@ -253,7 +245,9 @@ def run():
                     if not inwin:
                         selected_window = False
                     if len(zlayer) != 0 and len(zlayer) >= 0 + 1 and selected_window:
-                        zlayer[0].handel_input("m",(event.pos[0],event.pos[1]))
+                        if type(zlayer[0]) == MosWindow:
+                            zlayer[0].handle_input(event)
+                        else: zlayer[0].handel_input("m", (event.pos[0], event.pos[1]))
             elif event.type == pygame.MOUSEMOTION:
                 if mousbuttondown:
                     if len(zlayer) != 0 and len(zlayer) >= 0 + 1:
@@ -263,7 +257,7 @@ def run():
                 mouspos = event.pos
                 mouserel = event.rel
             elif event.type == pygame.MOUSEBUTTONUP:
-                if textbutton.mouse_up(event.pos):
+                if text_button.mouse_up(event.pos):
                     pass
                 mousbuttondown = False
             elif event.type == pygame.KEYDOWN:
@@ -285,7 +279,6 @@ def run():
                         textinput.handle(event)
         # Bildschirm aktualisieren
         if not error and not sss:
-
             screen.fill(BG)
             _draw_Desktop()
             _draw_Content()
@@ -323,7 +316,7 @@ def run():
             screen.fill((58,58,255))
             _draw_Text(errormsg,menuf,(235,235,255),50,50)
         
-        lscreen.blit(screen,(0,0))
+        root.blit(screen, (0, 0))
 
         pygame.display.flip()
 
@@ -373,7 +366,7 @@ def _draw_TaskBar():
     tb_offset = 0
     ooo = 0
     if len(zlayer) != 0 and len(zlayer) >= 1 and selected_window:
-        u_txt = menuf.render(f"{zlayer[0].titel}",True,(255,255,255))
+        u_txt = menuf.render(f"{zlayer[0].title}", True, (255, 255, 255))
 
             
     for window in zlayer:
@@ -392,7 +385,7 @@ def _draw_TaskBar():
         tb_offset +=1
 
 def _draw_Desktop():
-    global dt_items, dt_item_size, dt_offset, dt_font, textcolor, textbutton, textinput
+    global dt_items, dt_item_size, dt_offset, dt_font, textcolor, text_button, textinput
     for item in dt_items:
         if not item.isspace():
             titel = dt_font.render(item,True,textcolor)
@@ -401,7 +394,7 @@ def _draw_Desktop():
             pygame.draw.rect(screen, syscolor,(5+ (dt_item_size-5)//2, ry - dt_item_size, dt_item_size-5,dt_item_size-5))
             #print((dt_item_size //2 - titel.get_width()//2,ly))
             screen.blit(titel,(dt_item_size - titel.get_width()//2,ly))
-    textbutton.draw()
+    text_button.draw()
     textinput.draw()
 
 def _hit_list(items: tuple[str],font: pygame.font.Font,colors: tuple[tuple],x: int,y: int, offset:int,mousepos, background = (125, 125, 125)):
@@ -429,7 +422,7 @@ def _colide_in_cy(x,y,radius,x1,y1):
 
 # Secure Screen
 def SecureScreen():
-    global Secure_Screen, screen, BG, TBC, Secure_Screen_Handle
+    global secure_screen, screen, BG, TBC, Secure_Screen_Handle
     screen.fill(BG)
     pygame.draw.rect(screen, TBC, pygame.Rect(0, screen.get_height()- 50, screen.get_width(), 50))
     pygame.draw.rect(screen, (255,255,255), pygame.Rect(10,screen.get_height()- 40, 30,30) )
@@ -440,30 +433,10 @@ def SecureScreen():
     screen.blit(clock_txt, (screen.get_width()- clock_txt.get_width() -10, screen.get_height()- (50 - clock_txt.get_height()//2)))
 
     #BG /\ FG\/
-    pygame.draw.rect(Secure_Screen,(0,0,0, 125),(0,0,screen.get_width(),screen.get_height()))
+    pygame.draw.rect(secure_screen, (0, 0, 0, 125), (0, 0, screen.get_width(), screen.get_height()))
     if Secure_Screen_Handle:
         sceen = pygame.Surface((screen.get_width(),screen.get_height()), pygame.SRCALPHA)
         sceen.fill((0,0,0,0))
         Secure_Screen_Handle(sceen)
-        Secure_Screen.blit(sceen, (0,0))
-    screen.blit(Secure_Screen,(0,0))
-
-
-
-# Running
-if __name__ == "__main__":
-    from Modules.Build import next_build_version, get_build_version
-    _init_d(str(next_build_version()))
-
-
-
-    if datal["SYS"]["First"]:
-        datal["SYS"]["First"] = False
-        Create_MSG_Box(f"Welcome to MOS-{version}","You can close this PopUp.","Go to the Settings to personelize your PC.", 0,1,None)
-        first_time = False
-    run()
-
-
-
-    #with open("Settings.json","w") as f:
-    #    json.dump(datal,f)
+        secure_screen.blit(sceen, (0, 0))
+    screen.blit(secure_screen, (0, 0))

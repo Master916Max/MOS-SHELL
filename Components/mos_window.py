@@ -7,7 +7,7 @@ example usage:
 """
 class MosWindow(object):
     def __init__(self, title, width, height, Logo=None, syscolor=(192, 199, 200), window_select_color=(0, 0, 168),
-                 menuf=None, textcolor=(0, 0, 0), zlayer=None, parent=None, drawer=None, type_id=None):
+                 menuf=None, textcolor=(0, 0, 0), zlayer=None, parent=None, drawer=None, type_id=None, on_close=None):
         # layering from the parent but could also be inside of the window itself because of rendering other windows or elements
         self.zlayer = zlayer if zlayer is not None else []
         self.width = width
@@ -37,19 +37,11 @@ class MosWindow(object):
         self.title_height = 30
         self.close_btn_rect = pygame.Rect(width - 30, 0, 30, self.title_height)
 
-    def add_input_handler(self,func):
-        self.handler = func
-
-    def add_screen_drawer(self, name_func):
-        self.drawer = name_func
-
-    def run(self):
-        while True:
-            self.draw(self.lastframe)
-
     def draw(self,screen: pygame.Surface):
         # Draw window background
         self.surface.fill((240, 240, 240))
+        # Draw title bar
+        pygame.draw.rect(self.surface, (200, 200, 200), (0, 0, self.width, self.title_height))
         # Draw title text
         font = pygame.font.Font(None, 24)
         title_text = font.render(self.title, True, (0, 0, 0))
@@ -65,12 +57,16 @@ class MosWindow(object):
             self.surface.blit(data1_text, (10, data_text.get_height() + title_bar_height + data1_text.get_height()))
             #self.surface.blit(wdata_text, (10, data_text.get_height() + 5 + data1_text.get_height() + 5))
 
-        # Draw title bar
-        pygame.draw.rect(self.surface, (200, 200, 200), (0, 0, self.width, self.title_height))
+        
         # Draw buttons
         pygame.draw.rect(self.surface,(255,0,0), self.close_btn_rect)
         #pygame.draw.rect(self.surface,(0,255,0), self.close_btn_rect)
         #pygame.draw.rect(self.surface,(0,0,255), self.close_btn_rect)
+        # Draw X symbol
+        x_start = self.width - 25
+        x_end = self.width - 5
+        pygame.draw.line(self.surface, (255, 255, 255), (x_start, 5), (x_end, 25), 2)
+        pygame.draw.line(self.surface, (255, 255, 255), (x_start, 25), (x_end, 5), 2)
         # Draw window to screen
         screen.blit(self.surface, (self.x, self.y))
 
@@ -94,10 +90,10 @@ class MosWindow(object):
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = pygame.mouse.get_pos()
             relative_pos = (mouse_pos[0] - self.x, mouse_pos[1] - self.y)
-
+            
             # Check for close button click
             if self.close_btn_rect.collidepoint(relative_pos):
-                return False
+                self.destroy()
 
             # Start dragging
             if relative_pos[1] < self.title_height:
@@ -111,7 +107,11 @@ class MosWindow(object):
             mouse_pos = pygame.mouse.get_pos()
             self.x = mouse_pos[0] - self.drag_offset[0]
             self.y = mouse_pos[1] - self.drag_offset[1]
-        return True
+
+    # TODO: make mos handle destroying windows
+    def destroy(self):
+        if self.zlayer and self in self.zlayer:
+            self.zlayer.remove(self)
 
     @staticmethod
     def _collide_in_cy(x, y, radius, x1, y1):

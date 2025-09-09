@@ -31,7 +31,7 @@ def load_gui():
     gui.zlayer[0].y = 50
     gui.zlayer.insert(0, win_2)
     gui.zlayer.insert(0, win_3)
-    gui.Create_MSG_Box(f"Welcome to MOS-{gui.version}","You can close this PopUp.","Go to the Settings to personelize your PC.", 0,1,root=root)
+    gui.create_msg_box(f"Welcome to MOS-{gui.version}", "You can close this PopUp.", "Go to the Settings to personelize your PC.", 0, 1, root=root)
     print(os.open_windows)
     gui.run()
 

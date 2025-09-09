@@ -98,7 +98,7 @@ def init():
     build_id = version
     test_build = True
     build_str = menuf.render(f"Build {build_id}", True, textcolor)
-    root = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    root = pygame.display.set_mode((800, 600))
     pygame.display.set_caption("MOS-Py-GUI")
     secure_screen = pygame.Surface((root.get_width(), root.get_height()), pygame.SRCALPHA)
     text_button  = ButtonField("Test", root, 250, 50, 150, 50, fgcolor=textcolor, bgcolor=syscolor)
@@ -107,7 +107,7 @@ def init():
 
 screen = init()
 
-class MSG_Box:
+class MsgBox:
     def __init__(self,title, ContentL1,ContentL2,Buttons, Type, root = None, Logo = None):
         self.title = title
         self.line1 = ContentL1
@@ -190,12 +190,12 @@ class MSG_Box:
         self.ok.draw(x=self.x + self.width // 2 - 75, y=self.y + self.height - 60)
         return 0
 
-def Create_MSG_Box(Titel, ContentL1,ContentL2,Buttons, Type, root = None):
-    msg = MSG_Box(Titel, ContentL1,ContentL2,Buttons, Type, root)
+def create_msg_box(titel, content_l1, content_l2, buttons, type, root = None):
+    msg = MsgBox(titel, content_l1, content_l2, buttons, type, root)
     zlayer.insert(0,msg)
     return 0 , msg
 
-def Draw_Shutdown_Text(sceen: pygame.Surface):
+def draw_shutdown_text(sceen: pygame.Surface):
     img = menuf.render("Shuting Down", True, (255,255,255))
     sceen.blit(img,(sceen.get_width()//2 - img.get_width()//2, sceen.get_height()//2 - img.get_height()//2))
 
@@ -216,7 +216,7 @@ def run():
                     menu_opend = not menu_opend
                 elif pygame.Rect(0, screen.get_height()- (Menu_Height + 50), Menu_Width,Menu_Height).collidepoint(event.pos[0],event.pos[1]) and menu_opend:
                     menu_opend = True
-                    hit =  _hit_list(("New-Window","Apps","System"), menuf, (((213,189,175),textcolor),((250,237,205),textcolor),((212,163,115),textcolor)),10, screen.get_height() - (Menu_Height + 40) + Menu_Text.get_height() + 10, 5, event.pos)
+                    hit =  _hit_list(("New-Window","Terminal","System"), menuf, (((213,189,175),textcolor),((250,237,205),textcolor),((212,163,115),textcolor)),10, screen.get_height() - (Menu_Height + 40) + Menu_Text.get_height() + 10, 5, event.pos)
                     if hit == "New-Window":
                         w = random.randint(200,500)
                         # TODO: do not pass in zlayer because the window should not have any idea where its getting handled in terms of layering
@@ -224,7 +224,10 @@ def run():
                         # like removing the window from zlayer etc
                         new_window = MosWindow(f"New Window", w,w, None, parent=screen, zlayer=zlayer)
                         zlayer.insert(0,new_window)
-                    elif hit == "Apps":
+                    elif hit == "Terminal":
+                        w = random.randint(200,500)
+                        new_window = MosWindow(f"New Terminal", w,w, None, parent=screen, zlayer=zlayer, type_id='TERMINAL')
+                        zlayer.insert(0,new_window)
                         print("Showing Apps")
                     elif hit == "System":
                         print("Showing System Apps")
@@ -308,7 +311,7 @@ def run():
                 _draw_menu()
         if not error and sss:
             cd -= 1
-            Secure_Screen_Handle = Draw_Shutdown_Text
+            Secure_Screen_Handle = draw_shutdown_text
             SecureScreen()
             if cd == 0:
                 running = False
@@ -331,7 +334,7 @@ def _draw_menu():
     pygame.draw.rect(screen, (175,0,0), pygame.Rect(25, screen.get_height() - (Menu_Height - Menu_Text.get_height() * 6), Menu_Width - 50, Menu_Text.get_height()))
     #pygame.draw.rect(screen, (175,175,0), pygame.Rect(15, screen.get_height() - (Menu_Height - Menu_Text.get_height() * 1), Menu_Width - 25, Menu_Text.get_height()))
     
-    _draw_list(("New-Window","Apps","System"), menuf, (((213,189,175),textcolor),((250,237,205),textcolor),((212,163,115),textcolor)),10, screen.get_height() - (Menu_Height + 40) + Menu_Text.get_height() + 10, 5)
+    _draw_list(("New-Window","Terminal","System"), menuf, (((213,189,175),textcolor),((250,237,205),textcolor),((212,163,115),textcolor)),10, screen.get_height() - (Menu_Height + 40) + Menu_Text.get_height() + 10, 5)
 
     _draw_Text("Shutdown", menuf, (255,255,255), 30, screen.get_height() - (Menu_Height - Menu_Text.get_height() * 6 - 2.5),)
     screen.blit(Menu_Text, (25,screen.get_height()- (Menu_Height + 25)))

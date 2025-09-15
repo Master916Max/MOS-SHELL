@@ -22,17 +22,16 @@ def terminal(window,screen: pygame.Surface):
 def load_gui():
     os = MOS()
     root = gui.init()
-    win_1 = MosWindow("Terminal", 500,500, Logo=(0,0,0), parent=root, zlayer=gui.zlayer, type_id='TERMINAL')
-    win_2 = MosWindow("Terminal2", 300,300, None, parent=root, zlayer=gui.zlayer, type_id='TERMINAL')
-    win_3 = MosWindow("Window", 250,250, None, parent=root, zlayer=gui.zlayer)
-    os.open_window(win_1)
-    gui.zlayer.insert(0,win_1)
-    gui.zlayer[0].x = 100
-    gui.zlayer[0].y = 50
-    gui.zlayer.insert(0, win_2)
-    gui.zlayer.insert(0, win_3)
+    #win_1 = MosWindow("Terminal", 500,500, Logo=(0,0,0), parent=root, zlayer=gui.zlayer, type_id='TERMINAL')
+    #win_2 = MosWindow("Terminal2", 300,300, None, parent=root, zlayer=gui.zlayer, type_id='TERMINAL')
+    #win_3 = MosWindow("Window", 250,250, None, parent=root, zlayer=gui.zlayer)
+    #os.open_window(win_1)
+    #gui.zlayer.insert(0,win_1)
+    #gui.zlayer[0].x = 100
+    #gui.zlayer[0].y = 50
+    #gui.zlayer.insert(0, win_2)
+    #gui.zlayer.insert(0, win_3)
     gui.create_msg_box(f"Welcome to MOS-{gui.version}", "You can close this PopUp.", "Go to the Settings to personelize your PC.", 0, 1, root=root)
-    print(os.open_windows)
     gui.run()
 
 if __name__ == "__main__":

@@ -1,7 +1,11 @@
 import pygame, random, json
 from time import strftime
+
+from Components.mos_terminal import MosTerminal
 from Components.mos_window import MosWindow
 from Modules import *
+from chore.mos import mos_app
+from chore.window_helper import WindowHelper
 
 pygame.init()
 MSG_Box = object
@@ -178,15 +182,15 @@ class MsgBox:
         pygame.draw.circle(screen,(255,0,0), (self.x + 15 , self.y+ 15),10)
         #pygame.draw.circle(screen,(0,255,0), (self.x + 40 , self.y+ 15),10)
        # pygame.draw.circle(screen,(0,0,255), (self.x + 65 , self.y+ 15),10)
-        _draw_Text(self.title, menuf, textcolor, self.x + 30, self.y + 2.5)
+        _draw_text(self.title, menuf, textcolor, self.x + 30, self.y + 2.5)
         if self.Type == 1:
             pygame.draw.circle(screen, (0,0,255),    (self.x + 40,self.y +(self.line1_height)//2 + 50), 25)
             pygame.draw.circle(screen, (255,255,255),(self.x + 40,self.y +(self.line1_height)//2 + 50), 22)
             pygame.draw.circle(screen, (0,0,255),    (self.x + 40,self.y +(self.line1_height)//2 + 50), 20)
             pygame.draw.circle(screen, (255,255,255),(self.x + 40,self.y +(self.line1_height)//2 + 60), 3)
             pygame.draw.line(  screen, (255,255,255),(self.x + 39,self.y +(self.line1_height)//2 + 37),(self.x + 39,self.y +(self.line1_height)//2 + 52), 4)
-        _draw_Text(self.line1, menuf, msgtextcolor, self.x + 75, self.y + 35)
-        _draw_Text(self.line2, menuf, msgtextcolor, self.x + 75, self.y + 35 + self.line1_height + 5)
+        _draw_text(self.line1, menuf, msgtextcolor, self.x + 75, self.y + 35)
+        _draw_text(self.line2, menuf, msgtextcolor, self.x + 75, self.y + 35 + self.line1_height + 5)
         self.ok.draw(x=self.x + self.width // 2 - 75, y=self.y + self.height - 60)
         return 0
 
@@ -222,13 +226,30 @@ def run():
                         # TODO: do not pass in zlayer because the window should not have any idea where its getting handled in terms of layering
                         # we need something like an event listener in gui that can handle child events like window.close and do the necessary stuff
                         # like removing the window from zlayer etc
-                        new_window = MosWindow(f"New Window", w,w, None, parent=screen, zlayer=zlayer)
+                        window_config = {
+                            'title': f"New Window",
+                            'logo': None,
+                            'width': w,
+                            'height': w,
+                            'parent': screen,
+                            'zlayer': zlayer,
+                        }
+                        new_window = WindowHelper.init_window(window_config)
                         zlayer.insert(0,new_window)
                     elif hit == "Terminal":
                         w = random.randint(200,500)
-                        new_window = MosWindow(f"New Terminal", w,w, None, parent=screen, zlayer=zlayer, type_id='TERMINAL')
+                        window_config = {
+                            'title': f"New Terminal",
+                            'logo': None,
+                            'width': w,
+                            'height': w,
+                            'parent': screen,
+                            'zlayer': zlayer,
+                            'type_id': 'TERMINAL'
+                        }
+                        new_window = WindowHelper.init_window(window_config)
+                        #new_window = MosWindow(f"New Terminal", w,w, None, parent=screen, zlayer=zlayer, type_id='TERMINAL')
                         zlayer.insert(0,new_window)
-                        print("Showing Apps")
                     elif hit == "System":
                         print("Showing System Apps")
                     if pygame.Rect(25, screen.get_height()- (Menu_Height - Menu_Text.get_height() * 6), Menu_Width - 50,Menu_Text.get_height()).collidepoint(event.pos[0],event.pos[1]):
@@ -241,14 +262,15 @@ def run():
                     inwin = False
                     for window in zlayer:
                         if window.in_window(event.pos[0],event.pos[1]) and not inwin:
+                            mos_app.set_active(window)
                             inwin = True
                             zlayer.remove(window)
                             zlayer.insert(0,window)
                             selected_window = True
                     if not inwin:
                         selected_window = False
-                    if len(zlayer) != 0 and len(zlayer) >= 0 + 1 and selected_window:
-                        if type(zlayer[0]) == MosWindow:
+                    if len(zlayer) >= 1 and selected_window:
+                        if type(zlayer[0]) == MosWindow or type(zlayer[0]) == MosTerminal:
                             zlayer[0].handle_input(event)
                         else: zlayer[0].handel_input("m", (event.pos[0], event.pos[1]))
             elif event.type == pygame.MOUSEMOTION:
@@ -264,27 +286,13 @@ def run():
                     pass
                 mousbuttondown = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_F12:
-                    if menu_opend:
-                        menu_opend = False
-                elif event.key == pygame.K_RETURN:
-                    textinput.input += "\n"
-                else:
-                    if selected_window and len(zlayer) != 0 and len(zlayer) >= 0 + 1:
-                        if zlayer[0].handler:
-                            zlayer[0].handler(event.key, event.unicode)
-                        else:
-                            if event.unicode.isprintable():
-                                zlayer[0].screen.blit(menuf.render(event.unicode, True, textcolor), (10, 10))
-                            else:
-                                print(f"Key {event.key} pressed but no handler defined.")
-                    else:
-                        textinput.handle(event)
+                zlayer[0].handle_input(event)
+
         # Bildschirm aktualisieren
         if not error and not sss:
             screen.fill(BG)
-            _draw_Desktop()
-            _draw_Content()
+            _draw_desktop()
+            _draw_content()
 
             pygame.draw.rect(screen, (30, 61, 88, 125), pygame.Rect(0, screen.get_height()- 50, screen.get_width(), 50))
             logo = pygame.Surface((30,30), pygame.SRCALPHA)
@@ -296,7 +304,8 @@ def run():
             d_logo = pygame.transform.rotate(logo,45)
             screen.blit(d_logo,(5,screen.get_height()- 45))
 
-            _draw_TaskBar()
+            #_draw_task_bar()
+            _handle_task_bar()
 
             #_draw_list(("New-Window","Apps","System"), menuf, (((213,189,175),textcolor),((250,237,205),textcolor),((212,163,115),textcolor)),500, 500, 5)
 
@@ -317,7 +326,7 @@ def run():
                 running = False
         if error:
             screen.fill((58,58,255))
-            _draw_Text(errormsg,menuf,(235,235,255),50,50)
+            _draw_text(errormsg, menuf, (235, 235, 255), 50, 50)
         
         root.blit(screen, (0, 0))
 
@@ -336,7 +345,7 @@ def _draw_menu():
     
     _draw_list(("New-Window","Terminal","System"), menuf, (((213,189,175),textcolor),((250,237,205),textcolor),((212,163,115),textcolor)),10, screen.get_height() - (Menu_Height + 40) + Menu_Text.get_height() + 10, 5)
 
-    _draw_Text("Shutdown", menuf, (255,255,255), 30, screen.get_height() - (Menu_Height - Menu_Text.get_height() * 6 - 2.5),)
+    _draw_text("Shutdown", menuf, (255, 255, 255), 30, screen.get_height() - (Menu_Height - Menu_Text.get_height() * 6 - 2.5), )
     screen.blit(Menu_Text, (25,screen.get_height()- (Menu_Height + 25)))
 
 def _draw_list(items: tuple[str],font: pygame.font.Font,colors: tuple[tuple],x: int,y: int, offset:int, background = (125, 125, 125)):
@@ -354,17 +363,37 @@ def _draw_list(items: tuple[str],font: pygame.font.Font,colors: tuple[tuple],x: 
         pygame.draw.rect(screen, colors[items.index(item)][0],pygame.Rect(x+10, y + xoff, longestx, text.get_height()))
         screen.blit(text, ((x + 10 + (longestx // 2 - text.get_width()//2)), y + xoff))
 
-def _draw_Text(txt, font: pygame.font.Font, col, x, y):
+def _draw_text(txt, font: pygame.font.Font, col, x, y):
     img = font.render(txt, True, col)
     screen.blit(img,(x,y))
 
-def _draw_Content():
+def _draw_content():
     zlayer.reverse()
-    for window in zlayer:
+    for window in mos_app.open_windows:
         window.draw(screen)
+    #for window in zlayer:
+    #    window.draw(screen)
     zlayer.reverse()
 
-def _draw_TaskBar():
+def _handle_task_bar():
+
+    global tb_offset
+    tb_offset = 0
+    ooo = 0
+    for window in mos_app.open_windows:
+        if mos_app.active == window:
+            u_txt = menuf.render(f"{zlayer[0].title}", True, (255, 255, 255))
+            pygame.draw.rect(screen, (58,58,255), pygame.Rect(50+ 40*tb_offset + ooo,screen.get_height()- 40, 30,30))
+            pygame.draw.rect(screen, (60, 91, 118), pygame.Rect(50+ 40*(tb_offset + 1) - 5 , screen.get_height()- (55 - u_txt.get_height()//2),u_txt.get_width(), 30))
+            screen.blit(u_txt, (50+ 40*(tb_offset + 1) - 5 , screen.get_height()- (55 - u_txt.get_height()//2)))
+            ooo = u_txt.get_width() + 10
+        else:
+            pygame.draw.rect(screen, window.logo or syscolor, pygame.Rect(50+ 40*tb_offset + ooo,screen.get_height()- 40, 30,30))
+
+
+        tb_offset +=1
+
+def _draw_task_bar():
     global tb_offset
     tb_offset = 0
     ooo = 0
@@ -372,7 +401,7 @@ def _draw_TaskBar():
         u_txt = menuf.render(f"{zlayer[0].title}", True, (255, 255, 255))
 
             
-    for window in zlayer:
+    for window in mos_app.open_windows:
         if selected_window and zlayer.index(window)== 0:
             if window.logo and type(window.logo) == pygame.Surface:
                 screen.blit(window.logo,(50+ 40*tb_offset + ooo,screen.get_height()- 40))
@@ -387,7 +416,7 @@ def _draw_TaskBar():
                 
         tb_offset +=1
 
-def _draw_Desktop():
+def _draw_desktop():
     global dt_items, dt_item_size, dt_offset, dt_font, textcolor, text_button, textinput
     for item in dt_items:
         if not item.isspace():

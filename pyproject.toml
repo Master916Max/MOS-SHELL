@@ -6,5 +6,6 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "bump2version>=1.0.1",
+    "gitpython>=3.1.45",
     "pygame>=2.6.1",
 ]

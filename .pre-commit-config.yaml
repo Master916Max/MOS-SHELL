@@ -1,0 +1,7 @@
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/c4urself/bump2version
+    rev: v1.0.1
+    hooks:
+      - id: bump2version
+        args: [patch]

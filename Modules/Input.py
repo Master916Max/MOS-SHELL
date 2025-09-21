@@ -13,7 +13,7 @@ class Input(Basic.Module):
         self.input = "Test"
         self.font = txtfont if txtfont else pygame.font.Font(None, 32)
 
-    def draw(self):
+    def draw(self, screen=None):
         pygame.draw.rect(self.screen,(0,0,0),(self.x,self.y,self.width,self.height))
         pygame.draw.rect(self.screen,self.bg,(self.x+1,self.y+1,self.width-2,self.height-2))
         text = self.font.render(str(self.input), True, self.fg)

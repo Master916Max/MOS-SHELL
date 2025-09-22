@@ -7,6 +7,17 @@ from Modules import *
 from chore.mos import mos_app
 from chore.window_helper import WindowHelper
 
+#
+# GUI Services
+#
+from Theme.Service import ThemeService
+
+#
+# Init Services
+#
+Theme_Service = ThemeService()
+
+
 pygame.init()
 MSG_Box = object
 #Input Variabeln
@@ -35,12 +46,17 @@ datal: any
 
 def load_settings():
     global datal
-    try:
-        with open("Settings.json", "r") as f:
-            datal = json.load(f)
-    except Exception as e:
-        print(e)
-        datal = json.loads(basi_json)   
+    #try:
+    #    with open("Settings.json", "r") as f:
+    #        datal = json.load(f)
+    #except Exception as e:
+    #    print(e)
+    datal = json.loads(basi_json)
+    gui : dict =  Theme_Service.get_manager().get_theme("Solarized Dark")
+    print(gui)
+    if gui:
+        datal["GUI"] = gui
+        
 
 load_settings()
 
@@ -286,7 +302,10 @@ def run():
                     pass
                 mousbuttondown = False
             elif event.type == pygame.KEYDOWN:
-                zlayer[0].handle_input(event)
+                try:
+                    zlayer[0].handel_input(event)
+                except Exception as e:
+                    zlayer[0].handle_input(event)
 
         # Bildschirm aktualisieren
         if not error and not sss:

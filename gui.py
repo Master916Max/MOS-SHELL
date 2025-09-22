@@ -96,12 +96,30 @@ apps = {"Ordner": "Games",
 
 root : pygame.Surface
 
+
+
+def read_version() -> str:
+    from pathlib import Path
+    return Path(__file__).resolve().parent.joinpath("VERSION").read_text().strip()
+
+__version__ = read_version()
+
+
+
+def git_short_sha(default="unknown") -> str:
+    from git import Repo
+    try:
+        repo = Repo(search_parent_directories=True)
+        return repo.git.rev_parse("--short", "HEAD").strip()
+    except Exception:
+        return default
+
 def init():
     # TODO: do only use globals for constants
     global secure_screen, text_button, textinput,root, menuf,build_id, test_build, build_str
     build_id = version
     test_build = True
-    build_str = menuf.render(f"Build {build_id}", True, textcolor)
+    build_str = menuf.render(f"{__version__}-{git_short_sha()}", True, textcolor)
     root = pygame.display.set_mode((800, 600))
     pygame.display.set_caption("MOS-Py-GUI")
     secure_screen = pygame.Surface((root.get_width(), root.get_height()), pygame.SRCALPHA)

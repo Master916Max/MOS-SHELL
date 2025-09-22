@@ -1,3 +1,4 @@
+from re import M
 import pygame, random, json
 from time import strftime
 
@@ -253,7 +254,7 @@ def run():
                     menu_opend = not menu_opend
                 elif pygame.Rect(0, screen.get_height()- (Menu_Height + 50), Menu_Width,Menu_Height).collidepoint(event.pos[0],event.pos[1]) and menu_opend:
                     menu_opend = True
-                    hit =  _hit_list(("New-Window","Terminal","System"), menuf, (((213,189,175),textcolor),((250,237,205),textcolor),((212,163,115),textcolor)),10, screen.get_height() - (Menu_Height + 40) + Menu_Text.get_height() + 10, 5, event.pos)
+                    hit =  _hit_list(("New-Window","Terminal","Settings","System"), menuf, (((213,189,175),textcolor),((250,237,205),textcolor),((213,189,175),textcolor),((212,163,115),textcolor)),10, screen.get_height() - (Menu_Height + 40) + Menu_Text.get_height() + 10, 5, event.pos)
                     if hit == "New-Window":
                         w = random.randint(200,500)
                         # TODO: do not pass in zlayer because the window should not have any idea where its getting handled in terms of layering
@@ -283,6 +284,20 @@ def run():
                         new_window = WindowHelper.init_window(window_config)
                         #new_window = MosWindow(f"New Terminal", w,w, None, parent=screen, zlayer=zlayer, type_id='TERMINAL')
                         zlayer.insert(0,new_window)
+                    elif hit == "Settings":
+                        w = 600
+                        h = 400
+                        window_config = {
+                            'title': f"System Settings",
+                            'logo': None,
+                            'width': w,
+                            'height': h,
+                            'parent': screen,
+                            'zlayer': zlayer,
+                            'type_id': 'SETTINGS'
+                        }
+                        new_window = WindowHelper.init_window(window_config)
+                        zlayer.insert(0,new_window)
                     elif hit == "System":
                         print("Showing System Apps")
                     if pygame.Rect(25, screen.get_height()- (Menu_Height - Menu_Text.get_height() * 6), Menu_Width - 50,Menu_Text.get_height()).collidepoint(event.pos[0],event.pos[1]):
@@ -304,6 +319,8 @@ def run():
                         selected_window = False
                     if len(zlayer) >= 1 and selected_window:
                         if type(zlayer[0]) == MosWindow or type(zlayer[0]) == MosTerminal:
+                            zlayer[0].handle_input(event)
+                        elif type(zlayer[0]) == MosWindow or type(zlayer[0]) == MosSettings:
                             zlayer[0].handle_input(event)
                         else: zlayer[0].handel_input("m", (event.pos[0], event.pos[1]))
             elif event.type == pygame.MOUSEMOTION:

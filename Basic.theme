@@ -1,0 +1,10 @@
+name=Basic
+syscolor=192, 199, 200
+BG=87,168,168
+TBC=30,61,88
+noneselectcolor=100, 100, 100
+textcolor=0,0,0
+msgtextcolor=0, 0, 0
+window_select_color=0,0,168
+font=Fira Code
+font_size=15

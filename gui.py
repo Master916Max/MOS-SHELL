@@ -3,6 +3,7 @@ from time import strftime
 
 from Components.mos_terminal import MosTerminal
 from Components.mos_window import MosWindow
+from Components.mos_settings import MosSettings
 from Modules import *
 from chore.mos import mos_app
 from chore.window_helper import WindowHelper
@@ -52,7 +53,7 @@ def load_settings():
     #except Exception as e:
     #    print(e)
     datal = json.loads(basi_json)
-    gui : dict =  Theme_Service.get_manager().get_theme("Solarized Dark")
+    gui : dict =  Theme_Service.get_manager().get_theme("Basic")
     print(gui)
     if gui:
         datal["GUI"] = gui
@@ -90,8 +91,6 @@ selected_window = False
 cd = 100
 sss = False
 zlayer = []
-#build_str : str = ""
-
 
 #Secure Screen Variabeln
 secure_screen : pygame.Surface
@@ -380,7 +379,7 @@ def _draw_menu():
     pygame.draw.rect(screen, (175,0,0), pygame.Rect(25, screen.get_height() - (Menu_Height - Menu_Text.get_height() * 6), Menu_Width - 50, Menu_Text.get_height()))
     #pygame.draw.rect(screen, (175,175,0), pygame.Rect(15, screen.get_height() - (Menu_Height - Menu_Text.get_height() * 1), Menu_Width - 25, Menu_Text.get_height()))
     
-    _draw_list(("New-Window","Terminal","System"), menuf, (((213,189,175),textcolor),((250,237,205),textcolor),((212,163,115),textcolor)),10, screen.get_height() - (Menu_Height + 40) + Menu_Text.get_height() + 10, 5)
+    _draw_list(("New-Window","Terminal","Settings","System"), menuf, (((213,189,175),textcolor),((250,237,205),textcolor),((213,189,175),textcolor),((212,163,115),textcolor)),10, screen.get_height() - (Menu_Height + 40) + Menu_Text.get_height() + 10, 5)
 
     _draw_text("Shutdown", menuf, (255, 255, 255), 30, screen.get_height() - (Menu_Height - Menu_Text.get_height() * 6 - 2.5), )
     screen.blit(Menu_Text, (25,screen.get_height()- (Menu_Height + 25)))

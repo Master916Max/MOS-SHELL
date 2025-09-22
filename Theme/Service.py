@@ -1,14 +1,28 @@
+from tkinter import E
 from . import Theme_MGR, themeFileInt
 from os import listdir
 
 class ThemeService:
     def __init__(self):
         self.mgr = Theme_MGR.Theme_MGR()
-        for file in listdir("C:\\Max-U-Soft\\Resources\\Themes"):
-            if file.endswith(".theme"):
-                theme_settings = themeFileInt.read_theme_file(f"C:\\Max-U-Soft\\Resources\\Themes\\{file}")
-                if "name" in theme_settings:
-                    self.mgr.add_theme(theme_settings["name"], theme_settings)
+        try:
+            for file in listdir("C:\\Max-U-Soft\\Resources\\Themes"):
+                if file.endswith(".theme"):
+                    theme_settings = themeFileInt.read_theme_file(f"C:\\Max-U-Soft\\Resources\\Themes\\{file}")
+                    if "name" in theme_settings:
+                        self.mgr.add_theme(theme_settings["name"], theme_settings)
+        except Exception as e:
+            print(f"Error loading themes: {e}")
+        #
+        # Load a default theme
+        #       
+        try:
+            default_theme = themeFileInt.read_theme_file("Basic.theme")
+            if "name" in default_theme:
+                self.mgr.add_theme("Basic", default_theme)
+        except Exception as e:
+            raise Exception(f"Error loading default theme: {e}\n\n Make sure Basic.theme is in the working directory.")
+
     
     def get_manager(self):
         return self.mgr

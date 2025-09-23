@@ -45,6 +45,7 @@ def while_loading(dbg=False,pict: pygame.Surface=None):
 
 
 if __name__ == "__main__":
-    logo = pygame.image.load("mos-os-logo.png")
+    #logo = pygame.image.load("mos-os-logo.png")
+    logo = pygame.image.load("shell-logo.png")
     while_loading(dbg=False, pict=logo)
     time.sleep(1)

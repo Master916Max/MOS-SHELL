@@ -12,9 +12,9 @@ class Services(Enum):
     Settings_Service = 2
 
 def Start_Services():
+    # Start Theme Service
 
-    theme_service = ThemeService(Theme_Pipe, Theme_Return_Pipe)
-    theme_process = Process(target=theme_service.run, daemon=True)
+    theme_process = Process(target=ThemeService,args=(Theme_Pipe, Theme_Return_Pipe), daemon=True)
     theme_process.start()
     services[Services.Theme_Service] = theme_process
 

@@ -1,3 +1,4 @@
+print("Please wait, loading the Shell...")
 import multiprocessing
 import gui
 import pygame

@@ -1,6 +1,10 @@
 name=Basic
 syscolor=192, 199, 200
+<<<<<<< HEAD:Theme/Resources/Basic.theme
 bg_color=87,168,168
+=======
+bg_color_color=87,168,168
+>>>>>>> b4f9613ef3de6b3e727d68554281b045283f5f3e:Basic.theme
 TBC=30,61,88
 noneselectcolor=100, 100, 100
 textcolor=0,0,0

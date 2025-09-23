@@ -1,6 +1,7 @@
-#import multiprocessing
+import multiprocessing
 import gui
 import pygame
+import time
 
 from Components.mos_window import MosWindow
 from chore.mos import MOS
@@ -31,8 +32,9 @@ def load_gui():
     #gui.zlayer[0].y = 50
     #gui.zlayer.insert(0, win_2)
     #gui.zlayer.insert(0, win_3)
-    gui.create_msg_box(f"Welcome to MOS-{gui.version}", "You can close this PopUp.", "Go to the Settings to personelize your PC.", 0, 1, root=root)
-    gui.run()
+    #gui.create_msg_box(f"Welcome to MOS-{gui.version}", "You can close this PopUp.", "Go to the Settings to personelize your PC.", 0, 1, root=root)
+    gui.run(screen=root)
 
 if __name__ == "__main__":
+    gui.startup()
     load_gui()

@@ -1,7 +1,20 @@
+#
+# MOS-Shell
+#
+
+#
+# Python Imports
+#
+import pathlib
 from re import M
+import time
 import pygame, random, json
 from time import strftime
+from typing import Any
 
+#
+# Local Imports
+#
 from Components.mos_terminal import MosTerminal
 from Components.mos_window import MosWindow
 from Components.mos_settings import MosSettings
@@ -10,17 +23,13 @@ from chore.mos import mos_app
 from chore.window_helper import WindowHelper
 
 #
-# GUI Services
+# Services
 #
-from Theme.Service import ThemeService
+import services
 
-#
-# Init Services
-#
-Theme_Service = ThemeService()
-
-
+# Pygame Init
 pygame.init()
+
 MSG_Box = object
 #Input Variabeln
 mousbuttondown = False
@@ -28,48 +37,14 @@ mouspos = None
 lastmousepos = (0,0)
 mouserel = (0,0)
 
-basi_json = """{
-    "GUI":{
-        "BG": [87, 168, 168],
-        "TBC": [30, 61, 88],
-        "window_select_color": [0, 0, 168],
-        "syscolor": [192, 199, 200],
-        "textcolor": [0,0,0],
-        "msgtextcolor": [0, 0, 0],
-        "noneselectcolor": [100, 100, 100]
-    },
-    "SYS":{
-        "First":true
-    }
-
-}"""
-
-datal: any
-
-def load_settings():
-    global datal
-    #try:
-    #    with open("Settings.json", "r") as f:
-    #        datal = json.load(f)
-    #except Exception as e:
-    #    print(e)
-    datal = json.loads(basi_json)
-    gui : dict =  Theme_Service.get_manager().get_theme("Basic")
-    print(gui)
-    if gui:
-        datal["GUI"] = gui
-        
-
-load_settings()
-
-# System Variabeln
-syscolor = datal["GUI"]["syscolor"]
-BG = datal["GUI"]["BG"]
-TBC = datal["GUI"]["TBC"]
-noneselectcolor =  datal["GUI"]["noneselectcolor"]
-textcolor =  datal["GUI"]["textcolor"]
-msgtextcolor =  datal["GUI"]["msgtextcolor"]
-window_select_color =  datal["GUI"]["window_select_color"]
+# Colors
+syscolor =Any
+bg_color =Any
+TBC =Any
+noneselectcolor =Any
+textcolor =Any
+msgtextcolor =Any
+window_select_color =Any
 
 #Desktop Variabeln
 dt_item_size = 64
@@ -83,7 +58,7 @@ build_id = "0001"
 version = "V-1.0.0"
 text_button : ButtonField
 textinput  : InputField
-display : pygame.Surface
+screen: pygame.Surface
 error, errormsg = False , ""
 data = "N\\A"
 wdata = ""
@@ -99,12 +74,12 @@ Secure_Screen_Handle : any = None
 
 #Menu Variabeln
 menuf = pygame.font.Font(None,45)
-Menu_Text = menuf.render(f"MOS-{version}", True, textcolor)
+Menu_Text: pygame.Surface
 
-Menu_Height = Menu_Text.get_height() * 8 + 50
-Menu_Width = Menu_Text.get_width() + 50
+Menu_Height: int
+Menu_Width: int
 
-build_str = menuf.render(f"Build {build_id}", True, textcolor)
+build_str: pygame.Surface
 
 apps = {"Ordner": "Games",
         "App"   : "Emails",
@@ -112,11 +87,59 @@ apps = {"Ordner": "Games",
 
 root : pygame.Surface
 
+def startup():
+    services.Start_Services()
+
+    Theme_Service = services.services[services.Services.Theme_Service]
+    Theme_Pipe, Theme_Return_Pipe = services.get_Theme_Pipes()
+
+
+    basi_json = """{"SYS":{"First":true}}"""
+
+    datal: any
+
+    def load_settings():
+        global datal
+        #try:
+        #    with open("Settings.json", "r") as f:
+        #        datal = json.load(f)
+        #except Exception as e:
+        #    print(e)
+        datal = json.loads(basi_json)
+        Theme_Pipe.send(("GET_ACTIVE_THEME", None))
+        print("Waiting for Theme Service...")
+        time.sleep(1)
+    
+        command, theme = Theme_Return_Pipe.recv()
+        if theme:
+            print(theme)
+            datal["Theme"] = theme
+        else:
+            command, theme = Theme_Return_Pipe.recv()
+            if theme:
+                print(theme)
+                datal["Theme"] = theme
+            else:
+                raise Exception("No Active Theme Set\n Please make sure a theme is in the Current Working Directory.")  
+
+    load_settings()
+
+    print(datal)
+
+    # System Variabeln
+    syscolor =              datal["Theme"]["syscolor"]
+    bg_color =              datal["Theme"]["bg_color"]
+    TBC =                   datal["Theme"]["TBC"]
+    noneselectcolor =       datal["Theme"]["noneselectcolor"]
+    textcolor =             datal["Theme"]["textcolor"]
+    msgtextcolor =          datal["Theme"]["msgtextcolor"]
+    window_select_color =   datal["Theme"]["window_select_color"]
 
 
 def read_version() -> str:
     from pathlib import Path
     return Path(__file__).resolve().parent.joinpath("VERSION").read_text().strip()
+
 
 __version__ = read_version()
 
@@ -141,9 +164,11 @@ def init():
     secure_screen = pygame.Surface((root.get_width(), root.get_height()), pygame.SRCALPHA)
     text_button  = ButtonField("Test", root, 250, 50, 150, 50, fgcolor=textcolor, bgcolor=syscolor)
     textinput = InputField(root, 50, 50, 150, 50, fgcolor=textcolor, bgcolor=syscolor, txtfont=menuf)
+    # Menu \/
+    Menu_Text = menuf.render(f"MOS-{version}", True, textcolor)
+    Menu_Height = Menu_Text.get_height() * 8 + 50
+    Menu_Width = Menu_Text.get_width() + 50
     return root
-
-screen = init()
 
 class MsgBox:
     def __init__(self,title, ContentL1,ContentL2,Buttons, Type, root = None, Logo = None):
@@ -237,10 +262,10 @@ def draw_shutdown_text(sceen: pygame.Surface):
     img = menuf.render("Shuting Down", True, (255,255,255))
     sceen.blit(img,(sceen.get_width()//2 - img.get_width()//2, sceen.get_height()//2 - img.get_height()//2))
 
-def run():
-    global selected_window, data, mousbuttondown, mouspos, lastmousepos, mouserel, sss, cd, Secure_Screen_Handle, BG, TBC, textinput
+def run(screen: pygame.Surface = None):
+    global selected_window, data, mousbuttondown, mouspos, lastmousepos, mouserel, sss, cd, Secure_Screen_Handle, bg_color, TBC, textinput
     #TaskBar List Background Color
-
+    screen = screen
     running = True
     menu_opend = False
 
@@ -343,7 +368,7 @@ def run():
 
         # Bildschirm aktualisieren
         if not error and not sss:
-            screen.fill(BG)
+            screen.fill(bg_color)
             _draw_desktop()
             _draw_content()
 
@@ -507,8 +532,8 @@ def _colide_in_cy(x,y,radius,x1,y1):
 
 # Secure Screen
 def SecureScreen():
-    global secure_screen, screen, BG, TBC, Secure_Screen_Handle
-    screen.fill(BG)
+    global secure_screen, screen, bg_color, TBC, Secure_Screen_Handle
+    screen.fill(bg_color)
     pygame.draw.rect(screen, TBC, pygame.Rect(0, screen.get_height()- 50, screen.get_width(), 50))
     pygame.draw.rect(screen, (255,255,255), pygame.Rect(10,screen.get_height()- 40, 30,30) )
     clock_txt = menuf.render(strftime("%H:%M:%S"),True,(255,255,255))

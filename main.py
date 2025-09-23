@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 print("Please wait, loading the Shell...")
-=======
->>>>>>> b4f9613ef3de6b3e727d68554281b045283f5f3e
 import multiprocessing
 import gui
 import pygame

@@ -60,11 +60,7 @@ build_id = "0001"
 version = "V-1.0.0"
 text_button : ButtonField
 textinput  : InputField
-<<<<<<< HEAD
 screen: pygame.Surface = None
-=======
-screen: pygame.Surface
->>>>>>> b4f9613ef3de6b3e727d68554281b045283f5f3e
 error, errormsg = False , ""
 data = "N\\A"
 wdata = ""
@@ -94,10 +90,7 @@ apps = {"Ordner": "Games",
 root : pygame.Surface
 
 def startup():
-<<<<<<< HEAD
     global syscolor, bg_color, TBC, noneselectcolor, textcolor, msgtextcolor, window_select_color
-=======
->>>>>>> b4f9613ef3de6b3e727d68554281b045283f5f3e
     services.Start_Services()
 
     Theme_Service = services.services[services.Services.Theme_Service]
@@ -106,22 +99,14 @@ def startup():
 
     basi_json = """{"SYS":{"First":true}}"""
 
-<<<<<<< HEAD
 
     def load_settings():
-=======
-    datal: any
-
-    def load_settings():
-        global datal
->>>>>>> b4f9613ef3de6b3e727d68554281b045283f5f3e
         #try:
         #    with open("Settings.json", "r") as f:
         #        datal = json.load(f)
         #except Exception as e:
         #    print(e)
         datal = json.loads(basi_json)
-<<<<<<< HEAD
         Theme_Pipe.send(("GET_ACTIVE_THEME", "1234Trash"))
         print("Waiting for Theme Service...")
         print("Reciving Theme...")
@@ -129,33 +114,15 @@ def startup():
         while not Theme_Pipe.poll():
             time.sleep(0.1)
         command, theme = Theme_Pipe.recv()
-=======
-        Theme_Pipe.send(("GET_ACTIVE_THEME", None))
-        print("Waiting for Theme Service...")
-        time.sleep(1)
-    
-        command, theme = Theme_Return_Pipe.recv()
->>>>>>> b4f9613ef3de6b3e727d68554281b045283f5f3e
         if theme:
             print(theme)
             datal["Theme"] = theme
         else:
-<<<<<<< HEAD
             raise Exception("No Active Theme Set\n Please make sure a theme is in the Current Working Directory.")
           
         return datal
     
     datal = load_settings()
-=======
-            command, theme = Theme_Return_Pipe.recv()
-            if theme:
-                print(theme)
-                datal["Theme"] = theme
-            else:
-                raise Exception("No Active Theme Set\n Please make sure a theme is in the Current Working Directory.")  
-
-    load_settings()
->>>>>>> b4f9613ef3de6b3e727d68554281b045283f5f3e
 
     print(datal)
 
@@ -396,13 +363,8 @@ def run(screen: pygame.Surface = None):
         # Bildschirm aktualisieren
         if not error and not sss:
             screen.fill(bg_color)
-<<<<<<< HEAD
             _draw_desktop(screen)
             _draw_content(screen)
-=======
-            _draw_desktop()
-            _draw_content()
->>>>>>> b4f9613ef3de6b3e727d68554281b045283f5f3e
 
             pygame.draw.rect(screen, (30, 61, 88, 125), pygame.Rect(0, screen.get_height()- 50, screen.get_width(), 50))
             logo = pygame.Surface((30,30), pygame.SRCALPHA)

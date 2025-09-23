@@ -1,10 +1,12 @@
-from tkinter import E
 from . import Theme_MGR, themeFileInt
+from multiprocessing.connection import PipeConnection
 from os import listdir
 
 class ThemeService:
-    def __init__(self):
+    def __init__(self, theme_pipe : PipeConnection = None, theme_return_pipe : PipeConnection = None):
         self.mgr = Theme_MGR.Theme_MGR()
+        self.theme_pipe = theme_pipe
+        self.theme_return_pipe = theme_return_pipe
         try:
             for file in listdir("C:\\Max-U-Soft\\Resources\\Themes"):
                 if file.endswith(".theme"):
@@ -47,3 +49,30 @@ class ThemeService:
             except IOError:
                 return False
         return False
+    
+    def run(self):
+        while True:
+            if self.theme_pipe.poll():
+                command, data = self.theme_pipe.recv()
+                if command == "LOAD_THEME":
+                    success = self.load_theme(data)
+                    self.theme_return_pipe.send(("LOAD_THEME_RESPONSE", success))
+                elif command == "SAVE_THEME":
+                    name, file_path = data
+                    success = self.save_theme(name, file_path)
+                    self.theme_return_pipe.send(("SAVE_THEME_RESPONSE", success))
+                elif command == "LIST_THEMES":
+                    themes = self.mgr.list_themes()
+                    self.theme_return_pipe.send(("LIST_THEMES_RESPONSE", themes))
+                elif command == "GET_ACTIVE_THEME":
+                    theme = self.mgr.get_enabled_theme()
+                    if theme:
+                        self.theme_return_pipe.send(("GET_THEME_RESPONSE", theme))
+                    else:
+                        self.theme_return_pipe.send(("GET_THEME_RESPONSE", None))
+                elif command == "UNLOAD_THEME":
+                    theme_name = data
+                    self.mgr.remove_theme(theme_name)
+                    self.theme_return_pipe.send(("UNLOAD_THEME_RESPONSE", True))
+                elif command == "SHUTDOWN":
+                    break

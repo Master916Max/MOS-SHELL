@@ -1,5 +1,5 @@
-from Components.mos_terminal import MosTerminal
-from Components.mos_window import MosWindow
+from components.mos_terminal import MosTerminal
+from components.mos_window import MosWindow
 from chore.mos import mos_app
 
 

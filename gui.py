@@ -1,22 +1,22 @@
 import pygame, random, json
 from time import strftime
 
-from Components.mos_terminal import MosTerminal
-from Components.mos_window import MosWindow
-from Components.mos_settings import MosSettings
+from components.mos_terminal import MosTerminal
+from components.mos_window import MosWindow
+from components.mos_settings import MosSettings
 from Modules import *
 from chore.mos import mos_app
 from chore.window_helper import WindowHelper
+from theme.theme_mgr import theme_mgr
 
 #
 # GUI Services
 #
-from Theme.Service import ThemeService
+from theme.theme_service import theme_service
 
 #
 # Init Services
 #
-Theme_Service = ThemeService()
 
 
 pygame.init()
@@ -53,7 +53,7 @@ def load_settings():
     #except Exception as e:
     #    print(e)
     datal = json.loads(basi_json)
-    gui : dict =  Theme_Service.get_manager().get_theme("Basic")
+    gui : dict =  theme_service.get_theme("Basic")
     print(gui)
     if gui:
         datal["GUI"] = gui
@@ -110,7 +110,6 @@ apps = {"Ordner": "Games",
         "App"   : "Brave"} 
 
 root : pygame.Surface
-
 
 
 def read_version() -> str:
@@ -267,6 +266,8 @@ def run():
                             'parent': screen,
                             'zlayer': zlayer,
                         }
+                        theme = theme_mgr.get_enabled_theme()
+                        window_config = {**window_config, 'theme':{**theme}}
                         new_window = WindowHelper.init_window(window_config)
                         zlayer.insert(0,new_window)
                     elif hit == "Terminal":

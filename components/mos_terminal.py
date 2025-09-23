@@ -1,9 +1,10 @@
 import pygame
 
-from Components.mos_window import MosWindow
+from components.mos_window import MosWindow
+from components.mos_window_base import MosWindowBase
 
 
-class MosTerminal(MosWindow):
+class MosTerminal(MosWindowBase):
     def __init__(self, config: dict):
         super().__init__(config)
         self.terminal_lines = []

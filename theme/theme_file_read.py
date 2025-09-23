@@ -1,4 +1,13 @@
 
+
+"""
+TODO: this looks to complicated for what the task is, use a simpler data-structure that is easier to handle like
+{
+    "title_height": 30,
+    ....
+}
+TODO: we should also hava a base read-file class where the specific implementation per filetype is declared in subclasses
+"""
 def read_theme_file(file_path: str) -> dict:
     """Load theme settings from a custom .theme file."""
     settings = {}

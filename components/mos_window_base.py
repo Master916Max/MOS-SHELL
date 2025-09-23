@@ -1,11 +1,16 @@
 from abc import abstractmethod, ABC
-from chore.mos import mos_app
+
 import pygame
+
+from chore.mos import mos_app
+from theme.theme_mgr import theme_mgr
+
 
 class MosWindowBase(ABC):
     def __init__(self, config: dict):
         if config is None:
             raise ValueError("config must be a dict")
+        self.theme = config.get('theme', theme_mgr.defaultTheme)
         self.command_history = []
         self.command_buffer = ""
         self.cursor_pos = 0
@@ -23,10 +28,10 @@ class MosWindowBase(ABC):
         self.logo = config['logo']
         self.func = None
         self.lastframe = pygame.Surface((self.width,self.height), pygame.SRCALPHA)
-        self.syscolor = config.get('syscolor',(192, 199, 200))
+        self.syscolor = self.theme.get('syscolor')
         self.window_select_color = config.get('window_select_color',(0,0,168))
         self.menuf = config.get('menuf',pygame.font.Font(None, 24))
-        self.textcolor = config.get('textcolor', (0,0,0))
+        self.textcolor = self.theme.get('textcolor')
         self.handler = None
         self.surface = pygame.Surface((self.width,self.height), pygame.SRCALPHA)
         self.id: str = f"{self.title}_{id(self)}"
@@ -36,13 +41,15 @@ class MosWindowBase(ABC):
         self.title_height = 30
         self.close_btn_rect = pygame.Rect(self.width - 30, 0, 30, self.title_height)
         self.title_text = self.menuf.render(self.title, True, self.textcolor)
+        self.tbc = self.theme.get('TBC')
+        self.bg = self.theme.get('BG')
 
     
     def draw(self,screen: pygame.Surface):
         # Draw window background
-        self.surface.fill((240, 240, 240))
+        self.surface.fill(self.syscolor)
         # Draw title bar
-        pygame.draw.rect(self.surface, (200, 200, 200), (0, 0, self.width, self.title_height))
+        pygame.draw.rect(self.surface, self.tbc, (0, 0, self.width, self.title_height))
         # Draw title text
         font = pygame.font.Font(None, 24)
         title_text = font.render(self.title, True, (0, 0, 0))

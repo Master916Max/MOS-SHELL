@@ -13,8 +13,9 @@ class Button(Module):
         self.fg = fgcolor
         self.bg = bgcolor
         self.clicked = False
-        self.light = (self.bg[0] * 1.2, self.bg[1] * 1.2, self.bg[2] * 1.2)
-        self.dark = (self.bg[0] * 0.6, self.bg[1] * 0.6, self.bg[2] * 0.6)
+        # TODO: Fix light and dark calculation to generate values like (0, 144, 258)
+        self.light = (min(255, int(self.bg[0] * 1.2)), min(255, int(self.bg[1] * 1.2)), min(255, int(self.bg[2] * 1.2)))
+        self.dark = (int(self.bg[0] * 0.6), int(self.bg[1] * 0.6), int(self.bg[2] * 0.6))
         self.was_clicked = False
 
     def draw(self, x = None, y = None):
@@ -31,6 +32,7 @@ class Button(Module):
         else:
             pygame.draw.line(self.screen, self.dark,(self.x, self.y+self.height),(self.x+self.width, self.y+ self.height), 3)
             pygame.draw.line(self.screen, self.dark,(self.x+self.width, self.y),(self.x+self.width, self.y + self.height), 3)
+            
             pygame.draw.line(self.screen, self.light,(self.x, self.y),(self.x+self.width, self.y), 3)
             pygame.draw.line(self.screen, self.light,(self.x, self.y),(self.x, self.y + self.height), 3)
             

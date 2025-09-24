@@ -388,7 +388,7 @@ def run(screen: pygame.Surface = None):
         if not error and sss:
             cd -= 1
             Secure_Screen_Handle = draw_shutdown_text
-            SecureScreen()
+            SecureScreen(screen)
             if cd == 0:
                 running = False
         if error:
@@ -495,8 +495,8 @@ def _colide_in_cy(x,y,radius,x1,y1):
 
 
 # Secure Screen
-def SecureScreen():
-    global secure_screen, screen, bg_color, TBC, Secure_Screen_Handle
+def SecureScreen(screen):
+    global secure_screen, bg_color, TBC, Secure_Screen_Handle
     screen.fill(bg_color)
     pygame.draw.rect(screen, TBC, pygame.Rect(0, screen.get_height()- 50, screen.get_width(), 50))
     pygame.draw.rect(screen, (255,255,255), pygame.Rect(10,screen.get_height()- 40, 30,30) )

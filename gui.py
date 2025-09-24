@@ -161,14 +161,17 @@ def git_short_sha(default="unknown") -> str:
     except Exception:
         return default
 
-def init():
+def init(dbg:bool=False):
     # TODO: do only use globals for constants
     global secure_screen, text_button, textinput,root, menuf,build_id, test_build, build_str, Menu_Text, Menu_Height, Menu_Width, task_bar
     build_id = version
     test_build = True
     #print(textcolor)
     build_str = menuf.render(f"{__version__}-{git_short_sha()}", True, textcolor)
-    root = pygame.display.set_mode((1080, 720))
+    if dbg:
+        root = pygame.display.set_mode((1080, 720))
+    else:
+        root = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("MOS-Py-GUI")
     secure_screen = pygame.Surface((root.get_width(), root.get_height()), pygame.SRCALPHA)
     text_button  = ButtonField("Test", root, 250, 50, 150, 50, fgcolor=textcolor, bgcolor=syscolor)

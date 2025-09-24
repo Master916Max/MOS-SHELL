@@ -5,7 +5,7 @@ import multiprocessing
 import pygame
 import time
 
-lp = multiprocessing.Process(target=while_loading, kwargs={"dbg":True,"pict":"shell-logo.png"})
+lp = multiprocessing.Process(target=while_loading, kwargs={"dbg":False,"pict":"shell-logo.png"})
 
 import gui
 

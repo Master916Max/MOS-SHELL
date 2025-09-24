@@ -3,12 +3,16 @@ import sys
 import math
 import time
 
-def while_loading(dbg=False,pict: pygame.Surface=None):
+def while_loading(dbg=False,pict: str=None):
     pygame.init()
     if dbg:
         screen = pygame.display.set_mode((1080, 720))
     else:
         screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
+    if pict:
+        pict = pygame.image.load(pict)
+
     font = pygame.font.Font(None, 50)  # Default font, size 74
     center = screen.get_rect().center
     loading_text = font.render("Loading", True, (255, 255, 255))

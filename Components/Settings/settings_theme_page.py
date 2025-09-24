@@ -18,4 +18,4 @@ class SettingsThemePage(SPB):
 
     def draw_page(self):
         # Draw the theme settings page
-        print(f"Drawing Theme Settings Page with theme: {self.theme}")
+        #print(f"Drawing Theme Settings Page with theme: {self.theme}")

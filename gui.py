@@ -108,14 +108,14 @@ def startup():
         #    print(e)
         datal = json.loads(basi_json)
         Theme_Pipe.send(("GET_ACTIVE_THEME", "1234Trash"))
-        print("Waiting for Theme Service...")
-        print("Reciving Theme...")
+        #print("Waiting for Theme Service...")
+        #print("Reciving Theme...")
         time.sleep(0.5)
         while not Theme_Pipe.poll():
             time.sleep(0.1)
         command, theme = Theme_Pipe.recv()
         if theme:
-            print(theme)
+            #print(theme)
             datal["Theme"] = theme
         else:
             raise Exception("No Active Theme Set\n Please make sure a theme is in the Current Working Directory.")
@@ -124,7 +124,7 @@ def startup():
     
     datal = load_settings()
 
-    print(datal)
+    #print(datal)
 
     # System Variabeln
     syscolor =              datal["Theme"]["syscolor"]
@@ -158,7 +158,7 @@ def init():
     global secure_screen, text_button, textinput,root, menuf,build_id, test_build, build_str, Menu_Text, Menu_Height, Menu_Width
     build_id = version
     test_build = True
-    print(textcolor)
+    #print(textcolor)
     build_str = menuf.render(f"{__version__}-{git_short_sha()}", True, textcolor)
     root = pygame.display.set_mode((800, 600))
     pygame.display.set_caption("MOS-Py-GUI")

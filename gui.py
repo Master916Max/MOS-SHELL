@@ -166,8 +166,8 @@ def init(dbg:bool=False):
     global secure_screen, text_button, textinput,root, menuf,build_id, test_build, build_str, Menu_Text, Menu_Height, Menu_Width, task_bar
     build_id = version
     test_build = True
-    #print(textcolor)
-    build_str = menuf.render(f"{__version__}-{git_short_sha()}", True, textcolor)
+    #print(textcolor) #                     \/ "-{git_short_sha()}"
+    build_str = menuf.render(f"{__version__}", True, textcolor)
     if dbg:
         root = pygame.display.set_mode((1080, 720))
     else:

@@ -18,6 +18,7 @@ from typing import Any
 from Components.mos_terminal import MosTerminal
 from Components.mos_window import MosWindow
 from Components.mos_settings import MosSettings
+from Components.show_taskbar import TaskBar
 from Modules import *
 from chore.mos import mos_app
 from chore.window_helper import WindowHelper
@@ -90,6 +91,12 @@ apps = {"Ordner": "Games",
 
 root : pygame.Surface
 
+#
+# Components
+#
+task_bar : TaskBar
+start_menu : Any
+
 def startup():
     global syscolor, bg_color, TBC, noneselectcolor, textcolor, msgtextcolor, window_select_color
     services.Start_Services()
@@ -156,7 +163,7 @@ def git_short_sha(default="unknown") -> str:
 
 def init():
     # TODO: do only use globals for constants
-    global secure_screen, text_button, textinput,root, menuf,build_id, test_build, build_str, Menu_Text, Menu_Height, Menu_Width
+    global secure_screen, text_button, textinput,root, menuf,build_id, test_build, build_str, Menu_Text, Menu_Height, Menu_Width, task_bar
     build_id = version
     test_build = True
     #print(textcolor)
@@ -170,6 +177,7 @@ def init():
     Menu_Text = menuf.render(f"MOS-{version}", True, textcolor)
     Menu_Height = Menu_Text.get_height() * 8 + 50
     Menu_Width = Menu_Text.get_width() + 50
+    task_bar = TaskBar()
     return root
 
 class MsgBox:
@@ -373,44 +381,7 @@ def run(screen: pygame.Surface = None):
             
             screen.blit(build_str, (screen.get_width()- build_str.get_width() - 10, screen.get_height()- 60-(build_str.get_height()//2)))
 
-            taskbar = pygame.Surface((screen.get_width(), 50), pygame.SRCALPHA)
-
-            pygame.draw.rect(taskbar, (TBC[0],TBC[1],TBC[2],200), pygame.Rect(0, 0, screen.get_width(), 50))
-            pygame.draw.rect(taskbar, (TBC[0],TBC[1],TBC[2],225), pygame.Rect(5,5, 40,40) )
-
-            #
-            # Drawing Logo
-            #
-            logo = pygame.Surface((30,30), pygame.SRCALPHA)
-            pygame.draw.rect(logo, (255,0,0), (0,0, 15,15))
-            pygame.draw.rect(logo, (255,255,0), (15,0, 15,15))
-            pygame.draw.rect(logo, (0,0,255), (0,15, 15,15))
-            pygame.draw.rect(logo, (0,255,255), (15,15, 15,15))
-            d_logo = pygame.transform.rotate(logo,45)
-            taskbar.blit(d_logo,(5,5))
-
-            #
-            # Drawing Taskbar Items
-            #
-            _handle_task_bar(taskbar)
-
-            #
-            # Drawing Clock
-            #
-
-            #Clock Surface
-            clock_s = pygame.Surface((150,50), pygame.SRCALPHA)
-
-            # Clock Text
-            clock_txt = menuf.render(strftime("%H:%M:%S"),True,(255,255,255))
-
-            pygame.draw.rect(clock_s, (20, 41, 68,127), pygame.Rect(0, 0, 10, 50))
-            clock_rect = clock_txt.get_rect()
-            clock_rect.center = (80,25)
-            clock_s.blit(clock_txt, clock_rect)
-            taskbar.blit(clock_s, (screen.get_width()- clock_s.get_width(), 0))
-            
-            screen.blit(taskbar, (0, screen.get_height()- 50))
+            screen = task_bar.display(screen, TBC, menuf)
 
             if menu_opend:
                 _draw_menu(screen)

@@ -43,7 +43,7 @@ def while_loading(dbg=False,pict: str=None):
             screen.fill((0, 0, 0))
             screen.blit(loading_text, (center[0] - loading_text.get_width() // 2,center[1] - 60 - loading_text.get_height() // 2 + pict.get_height() // 2))
             pict_rect = pict.get_rect(center=center)
-            pict_rect = pict_rect.move(0, 0 - pict.get_height() // 2)
+            pict_rect = pict_rect.move(0, 0 - pict.get_height() // 2 - 50)
             screen.blit(pict, pict_rect)
         pygame.display.flip()
 

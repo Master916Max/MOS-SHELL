@@ -69,6 +69,7 @@ selected_window = False
 cd = 100
 sss = False
 zlayer = []
+bg_img = pygame.image.load("olopit.png")
 
 #Secure Screen Variabeln
 secure_screen : pygame.Surface
@@ -160,7 +161,7 @@ def init():
     test_build = True
     #print(textcolor)
     build_str = menuf.render(f"{__version__}-{git_short_sha()}", True, textcolor)
-    root = pygame.display.set_mode((800, 600))
+    root = pygame.display.set_mode((1080, 720))
     pygame.display.set_caption("MOS-Py-GUI")
     secure_screen = pygame.Surface((root.get_width(), root.get_height()), pygame.SRCALPHA)
     text_button  = ButtonField("Test", root, 250, 50, 150, 50, fgcolor=textcolor, bgcolor=syscolor)
@@ -269,6 +270,7 @@ def run(screen: pygame.Surface = None):
     screen = screen
     running = True
     menu_opend = False
+    last_size = 0
 
     while running:
         for event in pygame.event.get():
@@ -326,6 +328,7 @@ def run(screen: pygame.Surface = None):
                         zlayer.insert(0,new_window)
                     elif hit == "System":
                         print("Showing System Apps")
+                        print(last_size)
                     if pygame.Rect(25, screen.get_height()- (Menu_Height - Menu_Text.get_height() * 6), Menu_Width - 50,Menu_Text.get_height()).collidepoint(event.pos[0],event.pos[1]):
                         sss = True
                         cd -= 1    
@@ -363,30 +366,51 @@ def run(screen: pygame.Surface = None):
         # Bildschirm aktualisieren
         if not error and not sss:
             screen.fill(bg_color)
+            tmp = pygame.transform.scale(bg_img, (screen.get_width(), screen.get_height()))
+            screen.blit(tmp, (0,0))
             _draw_desktop(screen)
             _draw_content(screen)
+            
+            screen.blit(build_str, (screen.get_width()- build_str.get_width() - 10, screen.get_height()- 60-(build_str.get_height()//2)))
 
-            pygame.draw.rect(screen, (30, 61, 88, 125), pygame.Rect(0, screen.get_height()- 50, screen.get_width(), 50))
+            taskbar = pygame.Surface((screen.get_width(), 50), pygame.SRCALPHA)
+
+            pygame.draw.rect(taskbar, (TBC[0],TBC[1],TBC[2],200), pygame.Rect(0, 0, screen.get_width(), 50))
+            pygame.draw.rect(taskbar, (TBC[0],TBC[1],TBC[2],225), pygame.Rect(5,5, 40,40) )
+
+            #
+            # Drawing Logo
+            #
             logo = pygame.Surface((30,30), pygame.SRCALPHA)
-            pygame.draw.rect(screen, (TBC[0] * 1.2,TBC[1] * 1.2,TBC[2]*1.2), pygame.Rect(5,screen.get_height()- 45, 40,40) )
             pygame.draw.rect(logo, (255,0,0), (0,0, 15,15))
             pygame.draw.rect(logo, (255,255,0), (15,0, 15,15))
             pygame.draw.rect(logo, (0,0,255), (0,15, 15,15))
             pygame.draw.rect(logo, (0,255,255), (15,15, 15,15))
             d_logo = pygame.transform.rotate(logo,45)
-            screen.blit(d_logo,(5,screen.get_height()- 45))
+            taskbar.blit(d_logo,(5,5))
 
-            
-            _handle_task_bar(screen)
+            #
+            # Drawing Taskbar Items
+            #
+            _handle_task_bar(taskbar)
 
-            
+            #
+            # Drawing Clock
+            #
 
+            #Clock Surface
+            clock_s = pygame.Surface((150,50), pygame.SRCALPHA)
+
+            # Clock Text
             clock_txt = menuf.render(strftime("%H:%M:%S"),True,(255,255,255))
 
-            pygame.draw.rect(screen, TBC, pygame.Rect(screen.get_width()- clock_txt.get_width() - 20, screen.get_height()- 50, clock_txt.get_width()+20, 50))
-            pygame.draw.rect(screen, (20, 41, 68), pygame.Rect(screen.get_width()- clock_txt.get_width() - 20, screen.get_height()- 50, 5, 50))
-            screen.blit(clock_txt, (screen.get_width()- clock_txt.get_width() -10, screen.get_height()- (50 - clock_txt.get_height()//2)))
-            screen.blit(build_str, (screen.get_width()- build_str.get_width() - 10, screen.get_height()- 60-(build_str.get_height()//2)))
+            pygame.draw.rect(clock_s, (20, 41, 68,127), pygame.Rect(0, 0, 10, 50))
+            clock_rect = clock_txt.get_rect()
+            clock_rect.center = (80,25)
+            clock_s.blit(clock_txt, clock_rect)
+            taskbar.blit(clock_s, (screen.get_width()- clock_s.get_width(), 0))
+            
+            screen.blit(taskbar, (0, screen.get_height()- 50))
 
             if menu_opend:
                 _draw_menu(screen)

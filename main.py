@@ -1,11 +1,13 @@
 print("Please wait, loading the Shell...")
 
+dbg = True
+
 from startup import while_loading
 import multiprocessing
 import pygame
 import time
 
-lp = multiprocessing.Process(target=while_loading, kwargs={"dbg":False,"pict":"shell-logo.png"})
+lp = multiprocessing.Process(target=while_loading, kwargs={"dbg":dbg,"pict":"shell-logo.png"})
 
 import gui
 
@@ -28,7 +30,7 @@ def terminal(window,screen: pygame.Surface):
 
 def load_gui():
     os = MOS()
-    root = gui.init()
+    root = gui.init(dbg=dbg)
     # Kill loading screen
     lp.kill()
     # Show main window

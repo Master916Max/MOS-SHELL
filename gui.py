@@ -19,6 +19,7 @@ from Components.mos_terminal import MosTerminal
 from Components.mos_window import MosWindow
 from Components.mos_settings import MosSettings
 from Components.show_taskbar import TaskBar
+from Components.show_startmenu import Startmenu
 from Modules import *
 from chore.mos import mos_app
 from chore.window_helper import WindowHelper
@@ -57,7 +58,6 @@ dt_offset = 20
 
 #Other Variabeln
 test_build = True
-build_id = "0001"
 version = "V-1.0.0"
 text_button : ButtonField
 textinput  : InputField
@@ -95,10 +95,10 @@ root : pygame.Surface
 # Components
 #
 task_bar : TaskBar
-start_menu : Any
+start_menu : Startmenu
 
 def startup():
-    global syscolor, bg_color, TBC, noneselectcolor, textcolor, msgtextcolor, window_select_color
+    global syscolor, bg_color, TBC, noneselectcolor, textcolor, msgtextcolor, window_select_color, datal
     services.Start_Services()
 
     Theme_Service = services.services[services.Services.Theme_Service]
@@ -163,11 +163,10 @@ def git_short_sha(default="unknown") -> str:
 
 def init(dbg:bool=False):
     # TODO: do only use globals for constants
-    global secure_screen, text_button, textinput,root, menuf,build_id, test_build, build_str, Menu_Text, Menu_Height, Menu_Width, task_bar
-    build_id = version
-    test_build = True
+    global secure_screen, text_button, textinput,root, menuf, test_build, build_str, Menu_Text, Menu_Height, Menu_Width, task_bar, start_menu, datal
+    test_build = dbg
     #print(textcolor) #                     \/ "-{git_short_sha()}"
-    build_str = menuf.render(f"{__version__}", True, textcolor)
+    build_str = menuf.render(f"{__version__}-{git_short_sha()}", True, textcolor)
     if dbg:
         root = pygame.display.set_mode((1080, 720))
     else:
@@ -177,10 +176,11 @@ def init(dbg:bool=False):
     text_button  = ButtonField("Test", root, 250, 50, 150, 50, fgcolor=textcolor, bgcolor=syscolor)
     textinput = InputField(root, 50, 50, 150, 50, fgcolor=textcolor, bgcolor=syscolor, txtfont=menuf)
     # Menu \/
-    Menu_Text = menuf.render(f"MOS-{version}", True, textcolor)
+    Menu_Text = menuf.render(f"MOS-{__version__}", True, textcolor)
     Menu_Height = Menu_Text.get_height() * 8 + 50
     Menu_Width = Menu_Text.get_width() + 50
     task_bar = TaskBar()
+    start_menu = Startmenu(datal["Theme"], "Max")
     return root
 
 class MsgBox:
@@ -276,7 +276,7 @@ def draw_shutdown_text(sceen: pygame.Surface):
     sceen.blit(img,(sceen.get_width()//2 - img.get_width()//2, sceen.get_height()//2 - img.get_height()//2))
 
 def run(screen: pygame.Surface = None):
-    global selected_window, data, mousbuttondown, mouspos, lastmousepos, mouserel, sss, cd, Secure_Screen_Handle, bg_color, TBC, textinput
+    global selected_window, data, mousbuttondown, mouspos, lastmousepos, mouserel, sss, cd, Secure_Screen_Handle, bg_color, TBC, textinput, datal
     #TaskBar List Background Color
     screen = screen
     running = True
@@ -291,7 +291,7 @@ def run(screen: pygame.Surface = None):
                 mousbuttondown = True
                 if pygame.Rect(10,screen.get_height()- 40, 30,30).collidepoint(event.pos[0],event.pos[1]):
                     menu_opend = not menu_opend
-                elif pygame.Rect(0, screen.get_height()- (Menu_Height + 50), Menu_Width,Menu_Height).collidepoint(event.pos[0],event.pos[1]) and menu_opend:
+                elif pygame.Rect(0, screen.get_height()- (Menu_Height + 50), Menu_Width,Menu_Height).collidepoint(event.pos[0],event.pos[1]) and menu_opend and False:
                     menu_opend = True
                     hit =  _hit_list(screen,("New-Window","Terminal","Settings","System"), menuf, (((213,189,175),textcolor),((250,237,205),textcolor),((213,189,175),textcolor),((212,163,115),textcolor)),10, screen.get_height() - (Menu_Height + 40) + Menu_Text.get_height() + 10, 5, event.pos)
                     if hit == "New-Window":
@@ -372,8 +372,16 @@ def run(screen: pygame.Surface = None):
             elif event.type == pygame.MOUSEBUTTONUP:
                 mousbuttondown = False
             elif event.type == pygame.KEYDOWN:
-                zlayer[0].handle_input(event)
-
+                if event.key == pygame.K_F12 or event.key == 1073742051:
+                    if menu_opend:
+                        menu_opend = False
+                    else:
+                        menu_opend = True
+                else:
+                    pass
+                    #print(event)
+                    #zlayer[0].handle_input(event)
+                    
         # Bildschirm aktualisieren
         if not error and not sss:
             screen.fill(bg_color)
@@ -384,10 +392,11 @@ def run(screen: pygame.Surface = None):
             
             screen.blit(build_str, (screen.get_width()- build_str.get_width() - 10, screen.get_height()- 60-(build_str.get_height()//2)))
 
-            screen = task_bar.display(screen, TBC, menuf)
+            screen = task_bar.display(screen, menuf, datal["Theme"], mos_app, zlayer)
 
             if menu_opend:
-                _draw_menu(screen)
+                #_draw_menu(screen)
+                start_menu.draw(screen, menuf)
         if not error and sss:
             cd -= 1
             Secure_Screen_Handle = draw_shutdown_text
@@ -418,6 +427,8 @@ def _draw_menu(screen):
     _draw_text(screen,"Shutdown", menuf, (255, 255, 255), 30, screen.get_height() - (Menu_Height - Menu_Text.get_height() * 6 - 2.5), )
     screen.blit(Menu_Text, (25,screen.get_height()- (Menu_Height + 25)))
 
+    #start_menu.draw(screen, menuf)
+
 def _draw_list(screen, items: tuple[str],font: pygame.font.Font,colors: tuple[tuple],x: int,y: int, offset:int, background = (125, 125, 125)):
     longestx = 0
     height = 0
@@ -443,23 +454,7 @@ def _draw_content(screen):
         window.draw(screen)
     zlayer.reverse()
 
-def _handle_task_bar(screen):
 
-    global tb_offset
-    tb_offset = 0
-    ooo = 0
-    for window in mos_app.open_windows:
-        if mos_app.active == window:
-            u_txt = menuf.render(f"{zlayer[0].title}", True, (255, 255, 255))
-            pygame.draw.rect(screen, (58,58,255), pygame.Rect(50+ 40*tb_offset + ooo,screen.get_height()- 40, 30,30))
-            pygame.draw.rect(screen, (60, 91, 118), pygame.Rect(50+ 40*(tb_offset + 1) - 5 , screen.get_height()- (55 - u_txt.get_height()//2),u_txt.get_width(), 30))
-            screen.blit(u_txt, (50+ 40*(tb_offset + 1) - 5 , screen.get_height()- (55 - u_txt.get_height()//2)))
-            ooo = u_txt.get_width() + 10
-        else:
-            pygame.draw.rect(screen, window.logo or syscolor, pygame.Rect(50+ 40*tb_offset + ooo,screen.get_height()- 40, 30,30))
-
-
-        tb_offset +=1
 
 def _draw_desktop(screen):
     global dt_items, dt_item_size, dt_offset, dt_font, textcolor

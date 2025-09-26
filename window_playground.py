@@ -36,7 +36,6 @@ class Window:
         if self.type_id == 'TERMINAL':
             font = pygame.font.Font(None, 50)
             data_text = font.render(f"{self.x, self.y}", True, (0, 0, 0))
-            wdata_text = font.render(f"{gui.wdata}", True, (0, 0, 0))
             data1_text = font.render(f"{self.dragging}", True, (0, 0, 0))
             title_bar_height = title_text.get_height()
             self.surface.blit(data_text, (10,  title_text.get_height() + title_text.get_height()+5 if title_text is not None else data_text.get_height() + 5))

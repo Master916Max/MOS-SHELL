@@ -7,6 +7,7 @@
 #
 import pathlib
 from re import M
+import re
 import time
 import pygame, random, json
 from time import strftime
@@ -20,6 +21,7 @@ from Components.mos_window import MosWindow
 from Components.mos_settings import MosSettings
 from Components.show_taskbar import TaskBar
 from Components.show_startmenu import Startmenu
+from Components.remote_terminal import start_remote_terminal
 from Modules import *
 from chore.mos import mos_app
 from chore.window_helper import WindowHelper
@@ -62,6 +64,8 @@ cd = 100
 sss = False
 zlayer = []
 bg_img = pygame.image.load("olopit.png")
+remote_pip : Any        = None
+remote_process : Any    = None
 
 #Secure Screen Variabeln
 secure_screen : pygame.Surface
@@ -151,11 +155,12 @@ def git_short_sha(default="unknown") -> str:
 
 def init(dbg:bool=False):
     # TODO: do only use globals for constants
-    global secure_screen, text_button, textinput,root, menuf, build_str, Menu_Text, Menu_Height, Menu_Width, task_bar, start_menu, datal
+    global secure_screen, text_button, textinput,root, menuf, build_str, Menu_Text, Menu_Height, Menu_Width, task_bar, start_menu, datal, remote_pip, remote_process, zlayer
     #print(textcolor) #                     \/ "-{git_short_sha()}"
-    build_str = menuf.render(f"{__version__}-{git_short_sha()}", True, textcolor)
+    build_str = menuf.render(f"{__version__}-{git_short_sha()}", dbg, textcolor)
     if dbg:
         root = pygame.display.set_mode((1080, 720))
+        remote_pip, remote_process = start_remote_terminal()
     else:
         root = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("MOS-Py-GUI")
@@ -278,6 +283,7 @@ def run(screen: pygame.Surface = None):
                     
         # Bildschirm aktualisieren
         if not error and not sss:
+            check_remote_pipe()
             screen.fill(bg_color)
             tmp = pygame.transform.scale(bg_img, (screen.get_width(), screen.get_height()))
             screen.blit(tmp, (0,0))
@@ -307,6 +313,22 @@ def run(screen: pygame.Surface = None):
 
     pygame.quit()
 
+
+def check_remote_pipe():
+    global remote_pip
+    if not remote_pip: return
+    if remote_pip.poll():
+        command, arg = remote_pip.recv()
+        match command:
+            case "start_process":
+                print(f"Starting Process: {arg}")
+            case "kill_process":
+                print(f"Killing Process: {arg}")
+            case "list_processes":
+                print("Listing Processes")
+                #remote_pip.send([] for win in mos_app.open_windows if win.type_id == "TERMINAL")
+            case _:
+                print(f"Unknown Command: {command} with arg: {arg}")
 
 # Need to Export
 

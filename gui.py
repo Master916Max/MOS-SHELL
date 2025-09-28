@@ -66,6 +66,7 @@ zlayer = []
 bg_img = pygame.image.load("olopit.png")
 remote_pip : Any        = None
 remote_process : Any    = None
+rdbg : bool             = False
 
 #Secure Screen Variabeln
 secure_screen : pygame.Surface
@@ -155,14 +156,16 @@ def git_short_sha(default="unknown") -> str:
 
 def init(dbg:bool=False):
     # TODO: do only use globals for constants
-    global secure_screen, text_button, textinput,root, menuf, build_str, Menu_Text, Menu_Height, Menu_Width, task_bar, start_menu, datal, remote_pip, remote_process, zlayer
+    global secure_screen, text_button, textinput,root, menuf, build_str, Menu_Text, Menu_Height, Menu_Width, task_bar, start_menu, datal, remote_pip, remote_process, zlayer, rdbg
     #print(textcolor) #                     \/ "-{git_short_sha()}"
     build_str = menuf.render(f"{__version__}-{git_short_sha()}", dbg, textcolor)
     if dbg:
         root = pygame.display.set_mode((1080, 720))
         remote_pip, remote_process = start_remote_terminal()
+
     else:
         root = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    rdbg = dbg
     pygame.display.set_caption("MOS-Py-GUI")
     secure_screen = pygame.Surface((root.get_width(), root.get_height()), pygame.SRCALPHA)
     text_button  = ButtonField("Test", root, 250, 50, 150, 50, fgcolor=textcolor, bgcolor=syscolor)
@@ -176,7 +179,7 @@ def init(dbg:bool=False):
     return root
 
 def run(screen: pygame.Surface = None):
-    global selected_window, mousbuttondown, sss, cd, Secure_Screen_Handle, bg_color, TBC, textinput, datal
+    global selected_window, mousbuttondown, sss, cd, Secure_Screen_Handle, bg_color, TBC, textinput, datal, rdbg
     #TaskBar List Background Color
     screen = screen
     running = True
@@ -193,7 +196,7 @@ def run(screen: pygame.Surface = None):
                     menu_opend = not menu_opend
                 #Will be reworked
                 #by Master916Max
-                #elif pygame.Rect(0, screen.get_height()- (Menu_Height + 50), Menu_Width,Menu_Height).collidepoint(event.pos[0],event.pos[1]) and menu_opend and False:
+                elif pygame.Rect(0, screen.get_height()- (Menu_Height + 50), Menu_Width,Menu_Height).collidepoint(event.pos[0],event.pos[1]) and menu_opend:
                     menu_opend = True
                     hit =  _hit_list(screen,("New-Window","Terminal","Settings","System"), menuf, (((213,189,175),textcolor),((250,237,205),textcolor),((213,189,175),textcolor),((212,163,115),textcolor)),10, screen.get_height() - (Menu_Height + 40) + Menu_Text.get_height() + 10, 5, event.pos)
                     if hit == "New-Window":
@@ -277,13 +280,19 @@ def run(screen: pygame.Surface = None):
                     else:
                         menu_opend = True
                 else:
-                    pass
+                    if zlayer.count() > 0 and selected_window:
+                        if type(zlayer[0]) == MosWindow or type(zlayer[0]) == MosTerminal:
+                            zlayer[0].handle_input(event)
+                        elif type(zlayer[0]) == MosWindow or type(zlayer[0]) == MosSettings:
+                            zlayer[0].handle_input(event)
+                        else:   pass
                     #print(event)
                     #zlayer[0].handle_input(event)
                     
         # Bildschirm aktualisieren
         if not error and not sss:
-            check_remote_pipe()
+            if rdbg:
+                check_remote_pipe()
             screen.fill(bg_color)
             tmp = pygame.transform.scale(bg_img, (screen.get_width(), screen.get_height()))
             screen.blit(tmp, (0,0))
@@ -322,10 +331,54 @@ def check_remote_pipe():
         match command:
             case "start_process":
                 print(f"Starting Process: {arg}")
+                if arg[1] == "terminal":
+                    w = random.randint(200,500)
+                    window_config = {
+                        'title': f"New Terminal",
+                        'logo': None,
+                        'width': w,
+                        'height': w,
+                        'parent': root,
+                        'zlayer': zlayer,
+                        'type_id': 'TERMINAL'
+                    }
+                    new_window = WindowHelper.init_window(window_config)
+                    #new_window = MosWindow(f"New Terminal", w,w, None, parent=screen, zlayer=zlayer, type_id='TERMINAL')
+                    zlayer.insert(0,new_window)
+                elif arg[1] == "settings":
+                    w = 600
+                    h = 400
+                    window_config = {
+                        'title': f"System Settings",
+                        'logo': None,
+                        'width': w,
+                        'height': h,
+                        'parent': root,
+                        'zlayer': zlayer,
+                        'type_id': 'SETTINGS'
+                    }
+                    new_window = WindowHelper.init_window(window_config)
+                    zlayer.insert(0,new_window)
+                elif arg[1] == "window":
+                    w = random.randint(200,500)
+                    window_config = {
+                        'title': f"New Window",
+                        'logo': None,
+                        'width': w,
+                        'height': w,
+                        'parent': root,
+                        'zlayer': zlayer,
+                    }
+                    new_window = WindowHelper.init_window(window_config)
+                    zlayer.insert(0,new_window)
+                return "Succes"
             case "kill_process":
                 print(f"Killing Process: {arg}")
+                return "Not Implemented in the Moment"
             case "list_processes":
                 print("Listing Processes")
+                return "No Processes // Not Implemented in the Moment"
+
                 #remote_pip.send([] for win in mos_app.open_windows if win.type_id == "TERMINAL")
             case _:
                 print(f"Unknown Command: {command} with arg: {arg}")

@@ -3,6 +3,8 @@ import socket
 def remote_terminal_client(host='localhost', port=8932):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((host, port))
+        data = s.recv(4096)
+        print(data.decode(), end='')
         while True:
             data = s.recv(4096)
             print(data.decode(), end='')

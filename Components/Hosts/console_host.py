@@ -147,13 +147,13 @@ class cmdHost:
             pass
         self.process.terminate()
 
-if __name__ == "__main__":
-    # Automatische Shell-Wahl (Windows = CMD, Linux/macOS = Bash)
-    host = cmdHost()
-    print(host.exec("echo Hallo Welt"))
-    host.close()
-
-    # Windows mit PowerShell (Fallback auf CMD falls PowerShell fehlt)
-    host = cmdHost("powershell")
-    print(host.exec("Write-Output 'Hallo aus PowerShell oder CMD'"))
-    host.close()
+#if __name__ == "__main__":
+#    # Automatische Shell-Wahl (Windows = CMD, Linux/macOS = Bash)
+#    host = cmdHost()
+#    print(host.exec("echo Hallo Welt"))
+#    host.close()
+#
+#    # Windows mit PowerShell (Fallback auf CMD falls PowerShell fehlt)
+#    host = cmdHost("powershell")
+#    print(host.exec("Write-Output 'Hallo aus PowerShell oder CMD'"))
+#    host.close()

@@ -1,4 +1,4 @@
-from Components.mos_window_base import MosWindowBase
+from client.Components.mos_window_base import MosWindowBase
 
 
 class MosWindow(MosWindowBase):

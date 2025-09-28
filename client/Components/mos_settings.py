@@ -1,7 +1,7 @@
 
 import pygame
 
-from Components.mos_window import MosWindow
+from client.Components.mos_window import MosWindow
 
 
 class MosSettings(MosWindow):

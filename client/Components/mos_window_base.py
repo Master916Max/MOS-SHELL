@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from chore.mos import mos_app
+from client.chore.mos import mos_app
 import pygame
 
 class MosWindowBase(ABC):

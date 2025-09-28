@@ -1,7 +1,7 @@
-from Components.mos_terminal import MosTerminal
-from Components.mos_window import MosWindow
-from Components.mos_settings import MosSettings
-from chore.mos import mos_app
+from client.Components.mos_terminal import MosTerminal
+from client.Components.mos_window import MosWindow
+from client.Components.mos_settings import MosSettings
+from client.chore.mos import mos_app
 
 
 class WindowHelper:

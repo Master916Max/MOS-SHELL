@@ -1,10 +1,10 @@
 
 import pygame
 
-from Components.mos_window import MosWindow
+from Components.mos_window_base import MosWindowBase
 
 
-class MosSettings(MosWindow):
+class MosSettings(MosWindowBase):
     def __init__(self, config: dict):
         super().__init__(config)
         self.pages = []

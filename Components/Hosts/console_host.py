@@ -5,7 +5,7 @@ import platform
 import os
 import shutil
 
-class cmdHost:
+class ConsoleHost:
     """
     Eine Klasse, die eine interaktive Shell-Session (CMD, PowerShell, Bash oder sh) verwaltet.
     - Unterstützt Windows (CMD, PowerShell) sowie Linux/macOS (Bash, sh).

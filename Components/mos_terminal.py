@@ -2,7 +2,7 @@ import pygame
 import sys
 
 from Components.mos_window import MosWindow
-from Components.Hosts.console_host import cmdHost
+from Components.Hosts.console_host import ConsoleHost
 
 class MosTerminal(MosWindow):
     def __init__(self, config: dict):
@@ -14,7 +14,7 @@ class MosTerminal(MosWindow):
         self.font_size = 20
         self.line_spacing = 5
         self.text_color = (0, 0, 0)
-        self.host = cmdHost(shell="bash" if not sys.platform else "powershell")
+        self.host = ConsoleHost(shell="bash" if not sys.platform else "powershell")
 
     
     def draw_content(self):

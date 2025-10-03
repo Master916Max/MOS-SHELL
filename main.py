@@ -1,6 +1,6 @@
 print("Please wait, loading the Shell...")
 
-dbg = False
+dbg = True
 
 from startup import while_loading
 import multiprocessing

@@ -161,7 +161,8 @@ def init(dbg:bool=False):
     build_str = menuf.render(f"{__version__}-{git_short_sha()}", dbg, textcolor)
     if dbg:
         root = pygame.display.set_mode((1080, 720))
-        remote_pip, remote_process = start_remote_terminal()
+        if False:
+            remote_pip, remote_process = start_remote_terminal()
 
     else:
         root = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -185,6 +186,14 @@ def run(screen: pygame.Surface = None):
     running = True
     menu_opend = False
     last_size = 0
+    window_config = {
+        'logo': None,
+        'parent': screen,
+        'zlayer': zlayer,
+        'type_id': 'RUN_DIALOG'
+    }
+    wind = WindowHelper.init_window(window_config)
+    zlayer.insert(0,wind)
 
     while running:
         for event in pygame.event.get():
@@ -265,7 +274,7 @@ def run(screen: pygame.Surface = None):
                             zlayer[0].handle_input(event)
                         elif type(zlayer[0]) == MosWindow or type(zlayer[0]) == MosSettings:
                             zlayer[0].handle_input(event)
-                        else: zlayer[0].handel_input("m", (event.pos[0], event.pos[1]))
+                        else: zlayer[0].handle_input(event)
             elif event.type == pygame.MOUSEMOTION:
                 if mousbuttondown:
                     if len(zlayer) != 0 and len(zlayer) >= 0 + 1:
@@ -280,7 +289,7 @@ def run(screen: pygame.Surface = None):
                     else:
                         menu_opend = True
                 else:
-                    if zlayer.count() > 0 and selected_window:
+                    if len(zlayer) > 0 and selected_window:
                         if type(zlayer[0]) == MosWindow or type(zlayer[0]) == MosTerminal:
                             zlayer[0].handle_input(event)
                         elif type(zlayer[0]) == MosWindow or type(zlayer[0]) == MosSettings:
@@ -291,7 +300,7 @@ def run(screen: pygame.Surface = None):
                     
         # Bildschirm aktualisieren
         if not error and not sss:
-            if rdbg:
+            if rdbg and False:
                 check_remote_pipe()
             screen.fill(bg_color)
             tmp = pygame.transform.scale(bg_img, (screen.get_width(), screen.get_height()))

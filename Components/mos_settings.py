@@ -22,5 +22,4 @@ class MosSettings(MosWindowBase):
         self.surface.blit(Title, (10, 10))
 
     def handle_custom_input(self, event):
-        if self.type_id == 'TERMINAL' and event.type == pygame.KEYDOWN:
-            pass
+        pass
